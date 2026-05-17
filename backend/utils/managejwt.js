@@ -1,8 +1,10 @@
 import jwt from 'jsonwebtoken'
 
-export function signJWT(username){
+export function signJWT(username,role,displayname){
     const jwtToken = jwt.sign({
-        username:`${username}`
+        username:`${username}`,
+        roleType:`${role}`,
+        displayname:`${displayname}`
     },`${process.env.JWT_SECRET}`,{ expiresIn: '12h' })
     return jwtToken
 }

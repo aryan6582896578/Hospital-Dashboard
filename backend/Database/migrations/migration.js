@@ -8,6 +8,7 @@ export async function runDb(){
             username VARCHAR(20) NOT NULL UNIQUE PRIMARY KEY,
             password VARCHAR(50) NOT NULL,
             role VARCHAR(20) NOT NULL,
+            displayname VARCHAR(20) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `)

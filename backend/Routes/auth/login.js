@@ -9,6 +9,9 @@ export default function authroute(app){
             const validToken = verifyJWT(req.cookies.tokenJwt);
             if (validToken) {
             req.validUser = true;
+            req.roleType = validToken.roleType
+            req.username = validToken.username
+            req.displayname=validToken.displayname
             } else {
             req.validUser = false;
             }
@@ -25,9 +28,10 @@ export default function authroute(app){
             res.json({ status: "userValid" });
         }else{
             const getUserinfo = await pool.query('SELECT * FROM userinfo WHERE username=$1',[`${username}`]);
+            
             if(getUserinfo.rows[0]){
                 if(password===getUserinfo.rows[0].password){
-                    const tokenJwt = signJWT(username)
+                    const tokenJwt = signJWT(username,getUserinfo.rows[0].role,getUserinfo.rows[0].displayname)
 
                     res.cookie('tokenJwt',`${tokenJwt}`,{
                         httpOnly: true,
@@ -53,13 +57,16 @@ export default function authroute(app){
     
     })
     router.get('/verify',checkJwt, async(req, res) => {
-
         if(req.validUser){
-            res.json({ status: "userValid" });
+            res.json({ status: "userValid",roleType:req.roleType,username:req.username,displayname:req.displayname });
         }else{
             res.json({ status: "userInvalid" });
         }
-    
+    })
+    router.get('/logout',checkJwt, async(req, res) => {
+        res.clearCookie('tokenJwtCheck')
+        res.clearCookie('tokenJwt')
+        res.json({status:"logout"})
     })
 
     return router;

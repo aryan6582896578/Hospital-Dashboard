@@ -7,17 +7,27 @@ import HomePage from "./components/HomePage";
 import { AuthPage } from "./components/AuthPage.tsx";
 import { DashboardPage } from "./components/DashboardPage";
 import { ErrorPage } from "./components/ErrorPage.tsx";
+import { AdminPage } from "./components/AdminComponents/AdminPage.tsx";
+import { ManageUserPage } from "./components/AdminComponents/ManageUserPage.tsx";
+import { ManageHospitalPage } from "./components/AdminComponents/ManageHospitalPage.tsx";
 
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <HomePage/>,
+    Component: HomePage,
   },{
-    path:"/dashboard",
+    path:"dashboard",
     Component: AuthPage,
     children: [
       { path: "", Component: DashboardPage },
+      { path: "admin", 
+        Component: AdminPage,
+        children:[
+          {path:"manageuser", Component: ManageUserPage},
+          {path:"managehospital", Component: ManageHospitalPage},
+        ] },
+      
     ],
   },{
     path:"*",

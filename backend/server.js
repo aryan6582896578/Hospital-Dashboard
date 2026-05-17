@@ -28,7 +28,7 @@ async function defaultload(){
       console.log("admin exists")
     }else{
       console.log("admin does not exists trying to create admin")
-      const createAdmin = await pool.query('INSERT INTO userinfo(username,password,role) VALUES ($1,$2,$3) RETURNING *',['admin','verysafe','admin'])
+      const createAdmin = await pool.query('INSERT INTO userinfo(username,password,role,displayname) VALUES ($1,$2,$3,$4) RETURNING *',[`${process.env.DEFAULT_USERNAME}`,`${process.env.DEFAULT_PASSWORD}`,'admin',`${process.env.DEFAULT_DISPLAYNAME}`])
       if(createAdmin.rowCount===1){
         console.log("admin created");
       }
