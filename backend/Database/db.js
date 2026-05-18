@@ -3,7 +3,10 @@ const { Pool, Client } = pg
 
 
 const connectionString = `postgresql://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
-export const pool = new Pool({connectionString})
+export const pool = new Pool({connectionString,
+    ssl: { rejectUnauthorized: false }
+}
+)
 
 pool.on('error', (err, client) => {
   console.error('Unexpected error on idle client', err)
