@@ -1,6 +1,6 @@
 import { useContext } from "react"
 import { UserRoleContext } from "../AuthPage"
-import axios from "axios";
+// import axios from "axios";
 import { Link } from "react-router";
 
 export function ManageHospitalPage(){
