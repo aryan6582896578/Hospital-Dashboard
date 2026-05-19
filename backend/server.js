@@ -9,15 +9,36 @@ import { runDb } from './Database/migrations/migration.js'
 
 const router = express.Router()
 export const app = express()
-const port = `${process.env.PORT}`
 
-app.use(cors( {
-  origin: `${process.env.FRONTEND_URL}`,
+const port = process.env.PORT || 3000
+const allowedOrigins = [process.env.FRONTEND_URL].filter(Boolean)
+app.use(compression())
+app.use(express.json())
+app.use(cookieParser())
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) {
+      return callback(null, true)
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true)
+    }
+    return callback(
+      new Error(`CORS Error: ${origin} not allowed`)
+    )
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 200
-}),compression(),express.json(),cookieParser());
+  methods: ['GET','POST','PUT','DELETE','PATCH','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
+}))
+
+app.get('/test', (req, res) => {
+  return res.json({
+    status: 'radio check'
+  })
+})
 
 manageroutes(app)
 
