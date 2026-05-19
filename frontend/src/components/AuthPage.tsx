@@ -12,7 +12,7 @@ export function AuthPage(){
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/verify`,{withCredentials: true })
       if (response.data.status === "userValid") {
         setvalidUser(response.data);
-        console.log(response.data)
+        // console.log(response.data)
         // navigate(`/dashboard`);
       }else{
         navigate(`/`);

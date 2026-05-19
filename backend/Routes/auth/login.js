@@ -68,6 +68,55 @@ export default function authroute(app){
         res.clearCookie('tokenJwt')
         res.json({status:"logout"})
     })
+    router.post('/admin/adduser',checkJwt, async(req, res) => {
+        const username = req.body.username
+        const displayname = req.body.username
+        const password= req.body.password
+        const hospitalList=req.body.hospitalList 
+        const roleType=req.body.roleType
 
+        if(req.validUser){
+            if(username&&displayname&&password&&roleType){
+                try {
+                    const saveUserinfo = await pool.query('INSERT INTO userinfo(username,password,role,displayname,hospitalList) VALUES ($1,$2,$3,$4,$5) RETURNING * ',
+                        [`${username}`,`${password}`,`${roleType}`,`${displayname}`,hospitalList]);
+                    if(saveUserinfo){
+                        res.json({status:"userCreated"})
+                    }
+                } catch (error) {
+                    res.json({status:"unableToCreateUser"})
+                    console.log("oops not able to save user")
+                    console.log("error in admin portal trying to add user",error)
+                }
+                
+            }else{
+                res.json({status:"missingData"})
+            }
+        }else{
+            res.json({status:"invalidUser"})
+        }
+    
+    })
+    router.get('/admin/listuser',checkJwt, async(req, res) => {
+
+        // res.json({status:"vv"})
+        if(req.validUser){
+            try {
+                const getUserList = await pool.query('SELECT * FROM userinfo WHERE NOT username=($1)',['admin']);
+                    if(getUserList){
+                        res.json({userdata:getUserList.rows})
+                    }else{
+                        res.json({status:"unableToGetUserList"})
+                    }
+                } catch (error) {
+                    console.log("error in admin portal trying to list user",error)
+                }
+                
+            
+        }else{
+            res.json({status:"invalidUser"})
+        }
+    
+    })    
     return router;
 }

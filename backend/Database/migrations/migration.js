@@ -9,7 +9,8 @@ export async function runDb(){
             password VARCHAR(50) NOT NULL,
             role VARCHAR(20) NOT NULL,
             displayname VARCHAR(20) NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            hospitalList TEXT[] DEFAULT '{}',
+            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
             )
         `)
         console.log("created userdinfo table")
