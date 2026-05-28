@@ -9,12 +9,25 @@ export async function runDb(){
             password VARCHAR(50) NOT NULL,
             role VARCHAR(20) NOT NULL,
             displayname VARCHAR(20) NOT NULL,
-            hospitalList TEXT[] DEFAULT '{}',
             created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
             )
         `)
         console.log("created userdinfo table")
     } catch (error) {
-        console.log("error is creating db",error)
+        console.log("error is creating userinfo table",error)
+    }
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS hospitalinfo (
+            name VARCHAR(30) NOT NULL UNIQUE PRIMARY KEY,
+            displayname VARCHAR(20) NOT NULL,
+            doctorList TEXT[] DEFAULT '{}',
+            nurseList TEXT[] DEFAULT '{}',
+            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+            )
+        `)
+        console.log("created hospitalinfo table")
+    } catch (error) {
+        console.log("error is creating hospitalinfo table",error)
     }
 }

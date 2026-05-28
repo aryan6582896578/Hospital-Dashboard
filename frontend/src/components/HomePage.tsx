@@ -10,10 +10,7 @@ export default function HomePage(){
     const[cookieCheck,setcookieCheck]=useState(false)
     async function LoginUser(){
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`,userData,{withCredentials: true })
-        // console.log(`${import.meta.env.VITE_BACKEND_URL}`)
-        console.log(response.data);
         if(response.data.status==='userValid'){
-            console.log("ggg")
             navigate("/dashboard");
         }
     }

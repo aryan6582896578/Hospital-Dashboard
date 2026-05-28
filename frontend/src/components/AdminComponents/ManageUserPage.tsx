@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react"
 import { UserRoleContext } from "../AuthPage"
-// import axios from "axios";
 import { Link } from "react-router";
 import axios from "axios";
 
@@ -15,10 +14,8 @@ export function ManageUserPage(){
             setuserListDataError("error unable to fetch user list")
         }else{
             setuserListData(userList.data.userdata)
-
         }
     }
-
     useEffect(() => {
         getUserList()
     }, [])
@@ -57,7 +54,7 @@ export function ManageUserPage(){
                         <div className="mb-[100px]">
                             {userListData?.map((x:any)=>{
                                 return <div key={x.username} >
-                                    <UserListComponent userDataList={x}/>
+                                    <UserListComponent userDataList={x} getUserList={getUserList}/>
                                 </div>
                             })}
                         </div>
@@ -69,18 +66,31 @@ export function ManageUserPage(){
     )
 }
 
-function UserListComponent({userDataList}:{userDataList:any}){
+function UserListComponent({userDataList,getUserList}:{userDataList:any,getUserList:() => void}){
         const[userData,setuserData]=useState<{username:string,displayName:string,password:string,roleType:string,hospitalList:Array<string>}>({username:userDataList.username,displayName:userDataList.displayname,password:userDataList.password,roleType:userDataList.role,hospitalList:[]})
         const[isDisabled,setisDisabled]=useState<boolean>(true)
+        const[errorMessage,seterrorMessage]=useState<string>("")
+        async function UpdateUserPost(){
+            console.log(userData)
+            const addHospital = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/admin/updateuser`,userData,{withCredentials: true })
+            console.log(addHospital.data)
+            if(addHospital.data.status==="unableToUpdateHospital"){
+                seterrorMessage("internal server error contact admin")
+            }else if(addHospital.data.status==="missingData"){
+                seterrorMessage(" * fields cannot be empty")
+            }else{
+                setisDisabled(true)
+                getUserList()
+            }
+        }
     return(
-      <div className={`${isDisabled?'bg-gray-500':'bg-blue-500'}  m-[10px] p-[10px] rounded-[5px] text-white font-medium text-center mb-[30px]`}>
-                <div className="flex  p-[5px]">
-                    <div className=" p-[10px] ">
+      <div className={`${isDisabled?'bg-gray-500':'bg-blue-500'}  m-[10px] p-[10px] rounded-[5px] text-white font-medium text-center mb-[30px] w-fit ml-auto mr-auto`}>
+                <div className="flex  p-[5px] ">
+                    <div className=" p-[10px] ml-auto mr-auto">
+                        <div className="text-red-500 bg-white rounded-[5px]">{errorMessage?errorMessage:""}</div>
                         <div className="flex flex-col text-start">
                             <div className="">USERNAME <span className="text-red-500">*</span></div>
-                            <input type="text" maxLength={15} className="bg-yellow-50 rounded-[5px] outline-0 p-[5px] text-black" required onChange={(e)=>{
-                                setuserData({...userData,username:e.target.value})
-                            }} value={userData.username} disabled={isDisabled}/>
+                            <input type="text" maxLength={15} className="bg-yellow-50 rounded-[5px] outline-0 p-[5px] text-black" required value={userData.username} disabled={true}/>
                         </div>
                         <div className="flex flex-col text-start mt-[5px]">
                             <div className="">DISPLAY NAME <span className="text-red-500">*</span></div>
@@ -96,18 +106,13 @@ function UserListComponent({userDataList}:{userDataList:any}){
                         </div>
                         <div className="flex flex-col text-start mt-[5px]">
                             <div className="">ROLE <span className="text-red-500">*</span></div>
-                                <select value={userData.roleType} className="outline-0 bg-yellow-50 text-black cursor-pointer rounded-[5px]" disabled={isDisabled} onChange={(e) => setuserData({...userData,roleType:e.target.value})} required>
-                                    <option value="doctor" className="font-medium">DOCTOR</option>
-                                    <option value="nurse" className="font-medium">NURSE</option>
-                                </select>
+                            <input type="text" maxLength={20} className="bg-gray-700 rounded-[5px] outline-0 p-[5px] text-white min-w-[300px]" value={userData.roleType} disabled={true}/>
                         </div>
-                    </div>
-                    <div className="bg-orange-400 w-full">list hospital options</div>
-                    
+                    </div>                    
                 </div>
                 <div className="flex place-content-evenly">
                     <button className={`text-[20px] p-[5px] pl-[10px] pr-[10px] ${isDisabled?'bg-green-500':'bg-[#fab33c]'}  mt-[10px] rounded-[5px] font-bold cursor-pointer ${isDisabled?'hover:bg-green-600':'hover:bg-[#d19732]'} `} onClick={()=>{
-                        setisDisabled(false)
+                        isDisabled?setisDisabled(false):UpdateUserPost()
                     }}>{isDisabled?'EDIT':'SAVE'}</button>
                     {isDisabled?"":<button className={`text-[20px] p-[5px] pl-[10px] pr-[10px] bg-red-500 hover:bg-red-600 mt-[10px] rounded-[5px] font-bold cursor-pointer`} onClick={()=>{
                         setisDisabled(true)
@@ -123,8 +128,8 @@ type Props = {
     setdisplayAddUser: React.Dispatch<React.SetStateAction<boolean>>
 }
 function AddUserComponent({getUserList,setdisplayAddUser}: Props){
-    const[userData,setuserData]=useState<{username:string,displayName:string,password:string,roleType:string,hospitalList:Array<string>}>({username:"",displayName:"",password:"",roleType:"doctor",hospitalList:[]})
-
+    const[userData,setuserData]=useState<{username:string,displayName:string,password:string,roleType:string}>({username:"",displayName:"",password:"",roleType:"doctor"})
+    const [errorMessage,seterrorMessage]=useState<string>("")
 
     async function AddUserPost(){
         console.log(userData)
@@ -132,6 +137,8 @@ function AddUserComponent({getUserList,setdisplayAddUser}: Props){
         console.log(addUser.data)
         if(addUser.data.status==="unableToCreateUser"){
             setdisplayAddUser(false)
+        }else if(addUser.data.status==="missingData"){
+            seterrorMessage("fill all the fields")
         }else{
             setdisplayAddUser(false)
             getUserList()
@@ -139,8 +146,9 @@ function AddUserComponent({getUserList,setdisplayAddUser}: Props){
 
     }
     return(
-        <div className="bg-blue-500 m-[10px] p-[10px] rounded-[5px] text-white font-medium text-center mb-[20px]">
+        <div className="bg-blue-500 m-[10px] p-[10px] rounded-[5px] text-white font-medium text-center mb-[20px] w-fit ml-auto mr-auto">
                 <div className="text-[25px] ">Add A New User</div>
+                <div className="bg-white text-red-500 rounded-[5px] font-bold">{errorMessage?errorMessage:""}</div>
                 <div className="flex  p-[5px]">
                     <div className=" p-[10px] ">
                         <div className="flex flex-col text-start">
@@ -171,7 +179,6 @@ function AddUserComponent({getUserList,setdisplayAddUser}: Props){
                                 </select>
                         </div>
                     </div>
-                    <div className="bg-orange-400 w-full">list hospital options</div>
                     
                 </div>
                 <div className="flex place-content-evenly">

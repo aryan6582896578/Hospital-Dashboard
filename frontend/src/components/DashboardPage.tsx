@@ -1,4 +1,4 @@
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import { UserRoleContext } from "./AuthPage"
 import axios from "axios";
 import { Link, useNavigate } from "react-router";
@@ -45,7 +45,45 @@ export function DashboardPage(){
                 </div>
                 
             </div>
-            <div className="bg-gray-300 flex h-full">Hospital List</div>
+            <div className="flex h-full">
+                <ListHospital/>
+            </div>
         </div>
+    )
+}
+
+function ListHospital(){
+    const [hospitalListData,sethospitalListData]=useState<any>();
+
+    async function getHospitalList(){
+        const userList = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/dashboard/listhospital`,{withCredentials: true })
+        if(userList.data.status==="unableToGetHospitalList"){
+            console.log("error unable to fetch hospital list")
+        }else{
+            sethospitalListData(userList.data.userdata)
+
+        }
+    }
+
+    useEffect(() => {
+        getHospitalList()
+    }, [])
+    return( <div className="w-full flex flex-col p-[20px] overflow-y-scroll pb-[100px]">
+        {hospitalListData?.map((x:any)=>{
+            {console.log(x)}
+            return <div className="text-white bg-blue-700 hover:bg-blue-600 cursor-pointer m-[20px] p-[20px] rounded-[5px] " key={x.name}>
+                <div className="text-[35px] font-bold hover:underline">{x.displayname}</div>
+                <div className="text-[15px] font-medium">{x.name}</div>
+                <div className="font-semibold flex mt-[10px]">DOCTORS : {(x.doctorlist.map((y:any)=>{
+                    return <div key={y}  className="ml-[10px] bg-white text-blue-600 pl-[10px] pr-[10px] rounded-[3px]">{y}</div>
+                }))}</div>
+                <div className="font-semibold flex mt-[10px]">NURSES : {x.nurselist.map((y:any)=>{
+                    return <div key={y} className="ml-[10px] bg-white text-blue-600 pl-[10px] pr-[10px] rounded-[3px]">{y}</div>
+                })}</div>
+            </div>
+        })}
+
+
+    </div>
     )
 }
