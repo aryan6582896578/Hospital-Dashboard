@@ -1,75 +1,155 @@
 import axios from "axios";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { Activity, User, Lock, AlertCircle, ArrowRight } from "lucide-react";
 
-export default function HomePage(){
-    let navigate = useNavigate();
-    const[userData,setuserData]= useState({username:"",password:""});
-    const[usernameError,setusernameError]=useState("")
-    const[passwordError,setpasswordError]=useState("")
-    const[cookieCheck,setcookieCheck]=useState(false)
-    async function LoginUser(){
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`,userData,{withCredentials: true })
-        if(response.data.status==='userValid'){
-            navigate("/dashboard");
-        }
+export default function HomePage() {
+  let navigate = useNavigate();
+  const [userData, setuserData] = useState({ username: "", password: "" });
+  const [usernameError, setusernameError] = useState("");
+  const [passwordError, setpasswordError] = useState("");
+  const [cookieCheck, setcookieCheck] = useState(false);
+
+  async function LoginUser() {
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`,userData,{ withCredentials: true });
+    if (response.data.status === "userValid") {
+      navigate("/dashboard");
+    }else if(response.data.status==="invalidData"){
+        setusernameError("Invalid Username or Password")
     }
+  }
 
-    useEffect(() => {
-      if(document.cookie){
-        setcookieCheck(true)
-      }
-    }, [])
-    
-    
-    return(
-        <div className="flex bg-black h-[100%] flex-col">
-        <div className="bg-blue-600 h-[45px] sm:h-[70px] text-white text-[25px] sm:text-[40px] pl-[10px] sm:pl-[5px] font-semibold"> Hospital Dashboard</div>
-        <div className="bg-white sm:flex h-[100%]">
-            <div className="sm:w-[70%] text-[30px] sm:text-[40px] ml-[20px] font-bold text-blue-600">Welcome to Hospital Dashboard</div>
-            <div className="bg-blue-600 w-[90%] sm:w-[50%] sm:min-w-[40%] rounded-[10px] h-fit mt-[40px] ml-auto mr-auto flex flex-col sm:mr-[40px] text-white p-[30px] text-center">
-                <div className="text-[50px] font-semibold mb-[30px]">LOGIN</div>
-                {cookieCheck?<div className="">
-                    <button className="bg-green-500 text-[20px] w-[fit] p-[5px] pl-[20px] pr-[20px] rounded-[5px] text-white font-semibold cursor-pointer hover:bg-green-600" onClick={()=>{
-                        LoginUser() }}>CONTINUE</button>
-                </div>:                <div className="bg-gray-100 text-black p-[20px] rounded-[10px] mb-[30px] w-[100%] sm:w-[90%] ml-auto mr-auto">
-                    <div className="flex flex-col mt-[10px]">
-                        <div className="flex text-[15px] font-bold">USERNAME <div className=" ml-[5px] text-red-500 text-[15px]">{usernameError}</div> </div>
-                        <input type="text" className="rounded-[5px] border-2 h-[30px] bg-gray-300 border-gray-300 outline-0 p-[5px] font-semibold" onChange={(e)=>{
-                            setuserData({...userData,username:e.target.value})
-                        }}/>
-                    </div>
-                        <div className="flex flex-col mt-[20px]">
-                        <div className="flex text-[15px] font-bold">PASSWORD <div className=" ml-[5px] text-red-500 text-[15px]">{passwordError}</div> </div>
-                        <input type="password" className="rounded-[5px] border-2 h-[30px] bg-gray-300 border-gray-300 outline-0 p-[5px] font-semibold" onChange={(e)=>{
-                            setuserData({...userData,password:e.target.value})
-                        }}/>
-                    </div>
-                    <div className="flex text-[15px] mt-[5px] text-purple-800 font-semibold hover:underline cursor-pointer" onClick={()=>{
-                        alert("Contact Admin to reset username or password")
-                    }}>Forgot Password?</div>
-                    <div className="mt-[20px]">
-                        <button className="bg-green-500 text-[20px] w-[50%] p-[5px] pl-[20px] pr-[20px] rounded-[5px] text-white font-semibold cursor-pointer hover:bg-green-600" onClick={()=>{
-                            if(userData.username){
-                                setusernameError("")
-                                if(userData.password){
-                                    setpasswordError("")
-                                    LoginUser()
-                                }else{
-                                    setpasswordError("*password cannot be empty")
-                                }
-                                
-                            }else{
-                                setusernameError("*username cannot be empty")
-                            }
-                            
-                        }}>LOGIN</button>
-                    </div>
-                </div>}
+  useEffect(() => {
+    if (document.cookie) {
+      setcookieCheck(true);
+    }
+  }, []);
 
+  return (
+    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-blue-200 flex items-center justify-center p-4 ">
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center " >
+        <div className="hidden lg:flex flex-col justify-center space-y-6 p-8 mb-[30px]">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center">
+              <Activity className="w-10 h-10 text-white" strokeWidth={1} />
+            </div>
+            <div>
+              <h1 className="text-4xl text-blue-900 font-semibold">lforlungscare</h1>
+              <p className="text-s text-blue-600 font-semibold">Hospital Management System</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-3xl text-blue-900 font-semibold">Welcome Back</h2>
+            <p className="text-lg text-blue-700 font-medium">
+              Access your hospital dashboard to manage patient data, appointments,
+              and medical records all in one place.
+            </p>
+          </div>
 
         </div>
+
+        <div className="w-full max-w-md mx-auto">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 border border-blue-100">
+            <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
+              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                <Activity className="w-7 h-7 text-white" strokeWidth={1.5} />
+              </div>
+              <div>
+                <h1 className="text-2xl text-blue-900 font-semibold">lforlungscare</h1>
+                <p className="text-sm text-blue-600 font-semibold">Hospital Management System</p>
+              </div>
+            </div>
+
+            <div className="mb-8 ">
+              <h2 className="text-3xl text-gray-900 mb-2 font-semibold">Sign In</h2>
+              {cookieCheck?"":<p className="text-xs sm:text-sm text-gray-600 font-medium">Enter your credentials to access your account</p>}
+            </div>
+            {cookieCheck ? (
+              <div className="space-y-6">
+                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 group cursor-pointer font-semibold" onClick={() => {
+                    LoginUser();
+                  }}> Continue to Dashboard <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={(e) => {
+                  e.preventDefault();
+                  if (userData.username) {
+                    setusernameError("");
+                    if (userData.password) {
+                      setpasswordError("");
+                      LoginUser();
+                    } else {
+                      setpasswordError("Password cannot be empty");
+                    }
+                  } else {
+                    setusernameError("Username cannot be empty");
+                  }
+                }}
+                className="space-y-5">
+
+                <div>
+                  <label className="block text-sm text-gray-700 mb-2 font-medium">
+                    Username
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input type="text" className={`w-full pl-11 pr-4 py-3 bg-gray-50 border ${usernameError ? "border-red-500" : "border-gray-200"} rounded-xl outline-none`} placeholder="Enter your username"onChange={(e) => {
+                        setuserData({ ...userData, username: e.target.value });
+                        setusernameError("");
+                      }}
+                    />
+                  </div>
+                  {usernameError && (
+                    <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {usernameError}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-700 mb-2 font-medium">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input type="password" className={`w-full pl-11 pr-4 py-3 bg-gray-50 border ${passwordError ? "border-red-500" : "border-gray-200"} rounded-xl outline-none `} placeholder="Enter your password" onChange={(e) => {
+                        setuserData({ ...userData, password: e.target.value });
+                        setpasswordError("");
+                      }}/>
+                  </div>
+                  {passwordError && (
+                    <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {passwordError}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-end">
+                  <button type="button" className="text-sm text-blue-600 hover:text-blue-700 hover:underline cursor-pointer font-medium" onClick={() => {
+                      alert("Contact Admin to reset username or password");
+                    }}>
+                    Forgot Password?
+                  </button>
+                </div>
+
+                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 group cursor-pointer font-semibold">
+                  Sign In <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </form>
+            )}
+
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <p className="text-xs text-center text-gray-500 font-semibold">
+                Hospital staff access only. Unauthorized access is prohibited.
+              </p>
+            </div>
+          </div>
         </div>
-        </div>
-    )
+      </div>
+    </div>
+  );
 }

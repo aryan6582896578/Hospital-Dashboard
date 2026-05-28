@@ -25,15 +25,52 @@ export default function Dashboardroute(app){
 
         if(req.validUser){
             try {
-                const getHospitalList = await pool.query(`SELECT * FROM hospitalinfo WHERE $1 = 'admin' OR $1 = ANY(doctorlist) OR $1 = ANY(nurselist)`,[req.username]);
-                    if(getHospitalList){
+                if(req.roleType==='admin'){
+                    const getHospitalList = await pool.query(`SELECT * FROM hospitalinfo `);
+                    if(getHospitalList.rows){
                         res.json({userdata:getHospitalList.rows})
                     }else{
                         res.json({status:"unableToGetHospitalList"})
                     }
+                }else{
+                    const getHospitalList = await pool.query(`SELECT * FROM hospitalinfo WHERE $1 = ANY(doctorlist) OR $1 = ANY(nurselist)`,[req.username]);
+                    if(getHospitalList.rows){
+                        res.json({userdata:getHospitalList.rows})
+                    }else{
+                        res.json({status:"unableToGetHospitalList"})
+                    }
+                }
+
                 } catch (error) {
                     console.log("error in admin portal trying to list hospital",error)
                 }
+                
+        }else{
+            res.json({status:"invalidUser"})
+        }
+    
+    })
+    router.get('/gethospital',checkJwt, async(req, res) => {
+
+        if(req.validUser){
+            if(req.roleType==='admin'){
+                const getHospitalData= await pool.query(`SELECT * FROM hospitalinfo WHERE name=$1 `,[req.query.hospitalname])
+                if(getHospitalData.rows){
+                    res.json({status:getHospitalData.rows})
+                }
+            }else{
+            try {
+                
+                console.log(req.query.hospitalname,req.username )
+                const getHospitalData= await pool.query(`SELECT * FROM hospitalinfo WHERE name=$1 AND $2 = ANY(doctorlist) OR  $2 = ANY(nurselist)`,[req.query.hospitalname,req.username])
+                if(getHospitalData.rows){
+                    res.json({status:getHospitalData.rows,type:"other"})
+                }
+                } catch (error) {
+                    console.log("error in dashboard hospital page",error)
+                }
+            }
+
                 
         }else{
             res.json({status:"invalidUser"})

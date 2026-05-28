@@ -39,13 +39,13 @@ export function ManageHospitalPage(){
                 </div>
                 
             </div>
-            <div className="bg-gray-300 flex h-full">
-                <div className="bg-blue-900 min-w-[200px] m-[10px] p-[10px] rounded-[10px] ">
-                    <button className="bg-[#fab33c] text-white p-[5px] ml-auto flex mr-auto mt-[10px] text-[25px] rounded-[5px] font-bold cursor-pointer  hover:bg-[#d19732]" onClick={()=>{
+            <div className="bg-gray-300 flex h-full flex-col sm:flex-row p-[5px]">
+                <div className="bg-blue-900 min-w-[fit] m-[10px] p-[15px] rounded-[10px] min-h-fit">
+                    <button className="bg-[#fab33c] text-white p-[5px] ml-auto flex mr-auto text-[25px] rounded-[5px] font-bold cursor-pointer  hover:bg-[#d19732] min-w-fit" onClick={()=>{
                         setdisplayAddHospital(true)
                     }}>Add Hospital</button>
                 </div>
-                <div className="bg-blue-900 w-full m-[10px] rounded-[10px] flex flex-col overflow-y-scroll ">
+                <div className="bg-blue-900 w-full m-[10px] rounded-[10px] flex flex-col overflow-y-scroll ml-auto mr-auto">
                     
                     {displayAddHospital?<AddHospitalComponent getHospitalList={getHospitalList} setdisplayAddHospital={setdisplayAddHospital} />:""}
                     {hospitalListDataError? 
@@ -54,16 +54,13 @@ export function ManageHospitalPage(){
                                 {hospitalListDataError}
                             </div>
                         </div>:""}
-                        <div className="mb-[100px]">
+                        <div className="mb-[100px] ">
                             {hospitalListData?.map((x:any)=>{
                                 return <div key={x.username} >
                                     <HospitalListComponent hospitalDataList={x} getHospitalList={getHospitalList}/>
-                                    {/* <div className="">{x.name}</div> */}
                                 </div>
                             })}
-                </div>
-
-                    
+                </div>   
                 </div>
             </div>
          </div>
@@ -104,7 +101,7 @@ function HospitalListComponent({hospitalDataList,getHospitalList}:{hospitalDataL
     return(
       <div className={`${isDisabled?'bg-gray-500':'bg-blue-500'}  m-[10px] p-[10px] rounded-[5px] text-white font-medium text-center mb-[30px]`}>
         <div className="text-red-500 bg-white rounded-[5px]">{errorMessage?errorMessage:""}</div>
-                <div className="flex  p-[5px] ">
+                <div className="flex  p-[5px] flex-col sm:flex-row">
                     
                     <div className=" p-[10px] ">
                         
@@ -119,10 +116,10 @@ function HospitalListComponent({hospitalDataList,getHospitalList}:{hospitalDataL
                             }} value={hospitalData.displayName} disabled={isDisabled}/>
                         </div>
                     </div>
-                    <div className="w-full p-[15px]">
+                    <div className="w-full p-[0px]">
                        {userList?.map((x:any) => {
                             return (
-                                <div className="flex" key={x.username}>
+                                <div className="flex w-full" key={x.username}>
                                     <div className="flex bg-yellow-50 text-black m-[10px] rounded-[5px] h-fit w-full p-[10px]">
                                         <input type="checkbox" className="flex" disabled={isDisabled} checked={hospitalData.doctorList.includes(x.username) || hospitalData.nurseList.includes(x.username)} onChange={(e) => {
                                                 if(x.role === "doctor") {

@@ -10,6 +10,8 @@ import { ErrorPage } from "./components/ErrorPage.tsx";
 import { AdminPage } from "./components/AdminComponents/AdminPage.tsx";
 import { ManageUserPage } from "./components/AdminComponents/ManageUserPage.tsx";
 import { ManageHospitalPage } from "./components/AdminComponents/ManageHospitalPage.tsx";
+import { HospitalPage } from "./components/DashboardComponents/HospitalPage.tsx";
+import AddPaitentPage from "./components/DashboardComponents/AddPaitentPage.tsx";
 
 
 const router = createBrowserRouter([
@@ -20,7 +22,17 @@ const router = createBrowserRouter([
     path:"dashboard",
     Component: AuthPage,
     children: [
-      { path: "", Component: DashboardPage },
+      // {path:":hospitalname",
+      //   Component: HospitalPage,
+      //   children:[
+      //     {path:":user",
+      //     Component: AddPaitentPage}
+      //   ]
+      // },
+      {path:":hospitalname",Component: HospitalPage},
+      {path:":hospitalname/:user",Component: AddPaitentPage},
+      { index: true, 
+        Component: DashboardPage },
       { path: "admin", 
         Component: AdminPage,
         children:[

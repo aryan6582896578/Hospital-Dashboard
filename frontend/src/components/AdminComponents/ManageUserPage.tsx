@@ -36,13 +36,13 @@ export function ManageUserPage(){
                 </div>
                 
             </div>
-            <div className="bg-gray-300 flex h-full">
-                <div className="bg-blue-900 min-w-[150px] m-[10px] p-[10px] rounded-[10px] ">
-                    <button className="bg-[#fab33c] text-white p-[5px] ml-auto flex mr-auto mt-[10px] text-[25px] rounded-[5px] font-bold cursor-pointer  hover:bg-[#d19732]" onClick={()=>{
+            <div className="bg-gray-300 flex h-full flex-col sm:flex-row p-[5px]">
+                <div className="bg-blue-900 min-w-[150px] m-[10px] p-[15px] rounded-[10px] min-h-fit ">
+                    <button className="bg-[#fab33c] text-white p-[5px] ml-auto flex mr-auto text-[25px] rounded-[5px] font-bold cursor-pointer  hover:bg-[#d19732]" onClick={()=>{
                         setdisplayAddUser(true)
                     }}>Add User</button>
                 </div>
-                <div className="bg-blue-900 w-full m-[10px] rounded-[10px] flex flex-col overflow-y-scroll ">
+                <div className="bg-blue-900 w-full m-[10px] rounded-[10px] flex flex-col overflow-y-scroll ml-auto mr-auto pt-[20px]">
                     
                     {displayAddUser?<AddUserComponent setdisplayAddUser={setdisplayAddUser} getUserList={getUserList}/>:""}
                     {userListDataError? 
@@ -51,7 +51,7 @@ export function ManageUserPage(){
                                 {userListDataError}
                             </div>
                         </div>:""}
-                        <div className="mb-[100px]">
+                        <div className="mb-[100px] ml-auto mr-auto flex flex-col">
                             {userListData?.map((x:any)=>{
                                 return <div key={x.username} >
                                     <UserListComponent userDataList={x} getUserList={getUserList}/>
