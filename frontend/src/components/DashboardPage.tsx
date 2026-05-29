@@ -70,9 +70,8 @@ function ListHospital(){
     }, [])
     return( <div className="w-full flex flex-col p-[20px] overflow-y-scroll pb-[100px]">
         {hospitalListData?.map((x:any)=>{
-            {console.log(x)}
-            return <Link to={x.name}>
-            <div className="text-white bg-blue-700 hover:bg-blue-600 cursor-pointer m-[20px] p-[20px] rounded-[5px] " key={x.name}>
+            return <Link to={x.name} key={x.name}>
+            <div className="text-white bg-blue-700 hover:bg-blue-600 cursor-pointer m-[20px] p-[20px] rounded-[5px] " >
                 <div className="text-[35px] font-bold hover:underline">{x.displayname}</div>
                 <div className="text-[15px] font-medium">{x.name}</div>
                 <div className="font-semibold flex mt-[10px]">DOCTORS : {(x.doctorlist.map((y:any)=>{

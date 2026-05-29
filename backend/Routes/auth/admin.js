@@ -76,11 +76,12 @@ export default function authroute(app){
         const roleType=req.body.roleType
 
         if(req.validUser){
+            
             if(username&&displayname&&password&&roleType){
                 try {
                     const saveUserinfo = await pool.query('INSERT INTO userinfo(username,password,role,displayname) VALUES ($1,$2,$3,$4) RETURNING * ',
                         [`${username}`,`${password}`,`${roleType}`,`${displayname}`]);
-                    if(saveUserinfo){
+                    if(saveUserinfo.rows[0]){
                         res.json({status:"userCreated"})
                     }
                 } catch (error) {
@@ -95,8 +96,8 @@ export default function authroute(app){
         }else{
             res.json({status:"invalidUser"})
         }
-    
     })
+
     router.get('/admin/listuser',checkJwt, async(req, res) => {
         if(req.validUser){
             try {
@@ -141,8 +142,8 @@ export default function authroute(app){
         }else{
             res.json({status:"invalidUser"})
         }
-    
     }) 
+
     router.post('/admin/addhospital',checkJwt, async(req, res) => {
         const name = req.body.name
         const displayname = req.body.displayName

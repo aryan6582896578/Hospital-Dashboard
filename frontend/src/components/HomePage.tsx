@@ -15,6 +15,7 @@ export default function HomePage() {
     if (response.data.status === "userValid") {
       navigate("/dashboard");
     }else if(response.data.status==="invalidData"){
+        console.log(cookieCheck)
         setusernameError("Invalid Username or Password")
     }
   }
@@ -22,8 +23,10 @@ export default function HomePage() {
   useEffect(() => {
     if (document.cookie) {
       setcookieCheck(true);
+    }else{
+        setcookieCheck(false);
     }
-  }, []);
+  }, [LoginUser]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-blue-200 flex items-center justify-center p-4 ">

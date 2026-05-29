@@ -1,194 +1,450 @@
-import { useContext, useEffect, useState } from "react"
-import { UserRoleContext } from "../AuthPage"
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import axios from "axios";
+import {
+  ArrowLeft,
+  Search,
+  Plus,
+  User,
+  Shield,
+  X,
+  Save,
+  UserCircle,
+  Lock,
+  Edit,
+  Stethoscope,
+  Activity,
+  AlertCircle,
+} from "lucide-react";
+import { UserRoleContext } from "../AuthPage";
 
-export function ManageUserPage(){
+export function ManageUserPage() {
     const userRole = useContext<any>(UserRoleContext);
-    const[displayAddUser,setdisplayAddUser]=useState<boolean>(false);
-    const [userListData,setuserListData]=useState<any>();
-    const [userListDataError,setuserListDataError]=useState<string>("");
-    async function getUserList(){
-        const userList = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/admin/listuser`,{withCredentials: true })
-        if(userList.data.status==="unableToGetUserList"){
-            setuserListDataError("error unable to fetch user list")
-        }else{
-            setuserListData(userList.data.userdata)
-        }
+    const [displayAddUser, setdisplayAddUser] = useState(false);
+    const [userListData, setuserListData] = useState<any[]>([]);
+    const [selectedUser, setselectedUser] = useState<any>(null);
+    const [searchValue, setsearchValue] = useState("");
+    const [showPassword,setshowPassword]=useState<{show:boolean,user:any}>({show:false,user:""})
+
+    async function getUserList() {
+        const userList = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/admin/listuser`,{ withCredentials: true });
+        setuserListData(userList.data.userdata || []);
     }
+
     useEffect(() => {
-        getUserList()
-    }, [])
-    
+        getUserList();
+    }, []);
 
-    return(
-        <div className="flex flex-col h-full">
-            <div className="bg-blue-600 min-h-[fit] sm:min-h-[70px] sm:h-[70px] flex flex-col sm:flex-row ">
+  const filteredUsers = useMemo(() => {
+    return userListData.filter((x: any) => {
+      return (
+        x.displayname
+          ?.toLowerCase()
+          .includes(searchValue.toLowerCase()) ||
+        x.username?.toLowerCase().includes(searchValue.toLowerCase())
+      );
+    });
+  }, [searchValue, userListData]);
 
-                <div className="text-white p-[10px] text-[25px] sm:text-[30px] font-bold flex">
-                   Welcome <span className="font-bold bg-white text-blue-600 pl-[5px] pr-[5px] ml-[10px] mr-[10px] rounded-[5px]">{userRole.displayname}</span> 
-                </div>
-                <div className="flex text-[20px] sm:text-[25px]">
+  return (
+    <div className="bg-[#f6f8fb] flex h-full flex-col lg:flex-row overflow-y-auto">
+       
+      <div className="bg-white justify-between flex-col flex" >
+        <Link to="/dashboard">
+          <div className="h-20  flex items-center border-b border-[#e8edf2]">
+            <div className=" flex items-center gap-3 mb-8 justify-center mt-[20px] ml-[10px]">
+              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white">
+                <Activity className="w-7 h-7" strokeWidth={1.5} />
+              </div>
+              <div>
+                <h1 className="text-2xl text-blue-900 font-semibold">
+                  lforlungscare
+                </h1>
+                <p className="text-sm text-blue-600 font-semibold">
+                  Admin Dashboard
+                </p>
+              </div>
+            </div>
+          </div>
+        </Link>
+        <div className="p-4 border-t border-[#e8edf2] select-none lg:flex hidden">
+          <div className="flex items-center gap-3 ">
+            <div className="w-11 h-11 rounded-full bg-blue-900 text-white flex items-center justify-center font-bold hover:bg-white duration-[0.3s] hover:text-blue-900 cursor-pointer border-2 border-blue-900">
+              {userRole.displayname?.[0]}
+            </div>
 
-                    <div className="text-white p-[10px] font-bold mt-auto mb-auto ">
-                        <Link to="/dashboard"><button className="bg-green-500 font-bold pl-[10px] pr-[10px] rounded-[5px] cursor-pointer hover:bg-green-600">Go Back</button></Link>
+            <div>
+              <h2 className="text-s font-bold text-blue-900 ">
+                {userRole.displayname}
+              </h2>
+              <h1 className="text-xs text-[#64748b]">@{userRole.username}</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full flex flex-col">
+        <div className="min-h-20 bg-white border-b border-[#e8edf2] px-3 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 ">
+          <div className="relative w-full lg:max-w-xl">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b]" />
+            {searchValue && (
+              <X
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b] cursor-pointer"
+                onClick={() => {
+                  setsearchValue("");
+                }}
+              />
+            )}
+            <input
+              type="text"
+              placeholder="Search doctors or nurses..."
+              className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] pl-11 pr-4 outline-none "
+              value={searchValue}
+              onChange={(e) => {
+                setsearchValue(e.target.value);
+              }}
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <Link to="/dashboard" className="flex-1 md:flex-none">
+              <button className="w-full lg:w-auto h-11 px-5 rounded-[10px] border border-[#dbe4ee] cursor-pointer group font-semibold bg-white hover:bg-slate-100 transition-all flex items-center justify-center gap-2 text-[#1e293b] ">
+                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                Back
+              </button>
+            </Link>
+
+            <button
+              onClick={() => {
+                setdisplayAddUser(true);
+              }}
+              className="flex-1 lg:flex-none h-11 px-5 rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white transition-all flex items-center justify-center gap-2 font-semibold cursor-pointer"
+            >
+              <Plus className="w-5 h-5 text-white " />
+              Add User
+            </button>
+          </div>
+        </div>
+        <div className="p-3 md:p-4 lg:p-8 flex flex-col overflow-y-auto">
+            
+          <div className="mb-8">
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1e293b]">
+              User Management
+            </h1>
+          </div>
+
+          <div className="bg-white border border-[#e8edf2] rounded-[10px] shadow-sm flex flex-col ">
+            {filteredUsers.map((x: any) => {
+              return (
+                <div key={x.username} className="border-b border-[#eef2f7] hover:bg-[#fafcff] transition-all flex flex-col sm:flex-row ">
+                  <div className="flex">  
+                    <div className="px-4 lg:px-6 py-5 w-fit">
+                        <div className="flex items-center gap-3 lg:min-w-[220px]">
+                        <div className="w-11 h-11 rounded-full bg-blue-900 text-white flex items-center justify-center font-bold hover:bg-white duration-[0.3s] hover:text-blue-900 cursor-pointer border-2 border-blue-900 capitalize">
+                            {x.displayname?.[0]}
+                        </div>
+
+                        <div>
+                            <h2 className="font-semibold text-[#1e293b] break-words">
+                            {x.displayname}
+                            </h2>
+
+                            <p className="text-sm text-[#64748b]">@{x.username}</p>
+                        </div>
+                        </div>
                     </div>
-                </div>
-                
-            </div>
-            <div className="bg-gray-300 flex h-full flex-col sm:flex-row p-[5px]">
-                <div className="bg-blue-900 min-w-[150px] m-[10px] p-[15px] rounded-[10px] min-h-fit ">
-                    <button className="bg-[#fab33c] text-white p-[5px] ml-auto flex mr-auto text-[25px] rounded-[5px] font-bold cursor-pointer  hover:bg-[#d19732]" onClick={()=>{
-                        setdisplayAddUser(true)
-                    }}>Add User</button>
-                </div>
-                <div className="bg-blue-900 w-full m-[10px] rounded-[10px] flex flex-col overflow-y-scroll ml-auto mr-auto pt-[20px]">
-                    
-                    {displayAddUser?<AddUserComponent setdisplayAddUser={setdisplayAddUser} getUserList={getUserList}/>:""}
-                    {userListDataError? 
-                        <div className="bg-blue-500 m-[10px] p-[10px] rounded-[5px] text-white font-medium text-center flex ">
-                            <div className="flex ml-auto mr-auto text-[25px]">
-                                {userListDataError}
-                            </div>
-                        </div>:""}
-                        <div className="mb-[100px] ml-auto mr-auto flex flex-col">
-                            {userListData?.map((x:any)=>{
-                                return <div key={x.username} >
-                                    <UserListComponent userDataList={x} getUserList={getUserList}/>
-                                </div>
-                            })}
-                        </div>
 
-                    
+                    <div className="px-4 lg:px-6 py-5 w-[120px] lg:w-[150px] select-none">
+                        <div className="inline-flex w-[100px] items-center gap-2 px-3 h-9 rounded-[10px] bg-[#f1f5f9] text-[#1e293b] text-sm font-semibold capitalize ">
+                        {x.role === "doctor" ? (<Stethoscope className="w-4 h-4" />) : (<Shield className="w-4 h-4" />)}
+                        {x.role}
+                        </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between w-full  sm:flex-row">
+                    <div className="px-4 lg:px-6 py-5 ">
+                        <input type={showPassword.show && showPassword.user===x ?"text":"password"} readOnly className="bg-slate-100 text-black h-[40px] p-[5px] rounded-[5px] border border-slate-200 font-medium outline-0 " value={x.password} onMouseEnter={()=>(
+                                setshowPassword({...showPassword,show:true,user:x})
+                            )} onMouseLeave={()=>{
+                                setshowPassword({...showPassword,show:false,user:x})
+                            }}/>
+                    </div>
+
+                    <div className="px-4 lg:px-6 py-5 ">
+                        <div className="flex justify-start lg:justify-end">
+                        <button onClick={() => {
+                            setselectedUser(x);
+                            }} className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-green-200 transition-all flex items-center gap-2 text-[#1e293b]  whitespace-nowrap cursor-pointer font-semibold">
+                            <Edit className="w-4 h-4" />
+                            Edit
+                        </button>
+                        </div>
+                    </div>
+                   </div>     
                 </div>
-            </div>
+              );
+            })}
+
+          </div>
+
+
         </div>
-    )
+
+      </div>
+
+      {displayAddUser && (<AddUserModal getUserList={getUserList} setdisplayAddUser={setdisplayAddUser}/>)}
+
+      {selectedUser && (<EditUserComponent selectedUser={selectedUser}setselectedUser={setselectedUser}getUserList={getUserList}/>)}
+    </div>
+  );
 }
 
-function UserListComponent({userDataList,getUserList}:{userDataList:any,getUserList:() => void}){
-        const[userData,setuserData]=useState<{username:string,displayName:string,password:string,roleType:string,hospitalList:Array<string>}>({username:userDataList.username,displayName:userDataList.displayname,password:userDataList.password,roleType:userDataList.role,hospitalList:[]})
-        const[isDisabled,setisDisabled]=useState<boolean>(true)
-        const[errorMessage,seterrorMessage]=useState<string>("")
-        async function UpdateUserPost(){
-            console.log(userData)
-            const addHospital = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/admin/updateuser`,userData,{withCredentials: true })
-            console.log(addHospital.data)
-            if(addHospital.data.status==="unableToUpdateHospital"){
-                seterrorMessage("internal server error contact admin")
-            }else if(addHospital.data.status==="missingData"){
-                seterrorMessage(" * fields cannot be empty")
+function EditUserComponent({selectedUser,setselectedUser,getUserList}: any) {
+  const [userData, setuserData] = useState({ username: selectedUser.username,displayName: selectedUser.displayname,password: selectedUser.password,roleType: selectedUser.role});
+  const [displayNameError,setdisplayNameError]=useState<string>("")
+  const [passwordError,setpasswordError]=useState("")
+  const [showPassword,setshowPassword]=useState<boolean>(false);
+  async function UpdateUserPost() {
+    const updateUser = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/admin/updateuser`,userData,{ withCredentials: true });
+    if(updateUser.data.status==="missingData"){
+        console.log("missing data")
+    }else{
+        getUserList();
+        setselectedUser(null);
+    }
+
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="w-full sm:max-w-md h-fit bg-white border-l border-[#e8edf2] p-5 sm:p-8 overflow-y-auto rounded-[5px]">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-semibold text-[#1e293b]">Edit User</h1>
+            <p className="text-sm text-[#64748b] mt-1"> Update user information</p>
+          </div>
+
+          <button onClick={() => {
+              setselectedUser(null);
+            }} className="w-11 h-11 rounded-[10px]  flex items-center justify-center hover:bg-red-100 cursor-pointer text-black">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <form onSubmit={(e)=>{
+            e.preventDefault();
+            if(userData.displayName){
+                setdisplayNameError("")
+                if(userData.password){
+                    setpasswordError("")
+                    UpdateUserPost()
+                }else{
+                    setpasswordError("Password Cannot Be Empty")
+                }
             }else{
-                setisDisabled(true)
-                getUserList()
+                setdisplayNameError("Display Name Cannot Be Empty")
             }
-        }
-    return(
-      <div className={`${isDisabled?'bg-gray-500':'bg-blue-500'}  m-[10px] p-[10px] rounded-[5px] text-white font-medium text-center mb-[30px] w-fit ml-auto mr-auto`}>
-                <div className="flex  p-[5px] ">
-                    <div className=" p-[10px] ml-auto mr-auto">
-                        <div className="text-red-500 bg-white rounded-[5px]">{errorMessage?errorMessage:""}</div>
-                        <div className="flex flex-col text-start">
-                            <div className="">USERNAME <span className="text-red-500">*</span></div>
-                            <input type="text" maxLength={15} className="bg-yellow-50 rounded-[5px] outline-0 p-[5px] text-black" required value={userData.username} disabled={true}/>
-                        </div>
-                        <div className="flex flex-col text-start mt-[5px]">
-                            <div className="">DISPLAY NAME <span className="text-red-500">*</span></div>
-                            <input type="text" maxLength={30} className="bg-yellow-50 rounded-[5px] outline-0 p-[5px] text-black" required onChange={(e)=>{
-                                setuserData({...userData,displayName:e.target.value})
-                            }} value={userData.displayName} disabled={isDisabled}/>
-                        </div>
-                        <div className="flex flex-col text-start mt-[5px]">
-                            <div className="">PASSWORD <span className="text-red-500">*</span></div>
-                            <input type="text" maxLength={20} className="bg-yellow-50 rounded-[5px] outline-0 p-[5px] text-black min-w-[300px]" required onChange={(e)=>{
-                                setuserData({...userData,password:e.target.value})
-                            }} value={userData.password} disabled={isDisabled}/>
-                        </div>
-                        <div className="flex flex-col text-start mt-[5px]">
-                            <div className="">ROLE <span className="text-red-500">*</span></div>
-                            <input type="text" maxLength={20} className="bg-gray-700 rounded-[5px] outline-0 p-[5px] text-white min-w-[300px]" value={userData.roleType} disabled={true}/>
-                        </div>
-                    </div>                    
-                </div>
-                <div className="flex place-content-evenly">
-                    <button className={`text-[20px] p-[5px] pl-[10px] pr-[10px] ${isDisabled?'bg-green-500':'bg-[#fab33c]'}  mt-[10px] rounded-[5px] font-bold cursor-pointer ${isDisabled?'hover:bg-green-600':'hover:bg-[#d19732]'} `} onClick={()=>{
-                        isDisabled?setisDisabled(false):UpdateUserPost()
-                    }}>{isDisabled?'EDIT':'SAVE'}</button>
-                    {isDisabled?"":<button className={`text-[20px] p-[5px] pl-[10px] pr-[10px] bg-red-500 hover:bg-red-600 mt-[10px] rounded-[5px] font-bold cursor-pointer`} onClick={()=>{
-                        setisDisabled(true)
-                    }}>CANCEL</button>}
 
+        }}>
+            <div className="space-y-5">
+                
+            <div className="select-none cursor-not-allowed">
+                <div className="text-[#64748b] text-sm mb-[10px] ml-[1px] select-none">Username</div>
+                <div className="flex relative top-1/2 select-none">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748b] z-1 select-none" />
+                    <input type="text" disabled className={`border w-full h-[50px] rounded-[10px] bg-[#f1f5f9] border-[#dbe4ee] relative pl-[50px] text-[#64748b] select-none cursor-not-allowed`} defaultValue={userData.username} readOnly />
                 </div>
-        </div>
-    )
+            </div>
+
+            <div className="select-none">
+                <div className="text-[#64748b] text-sm mb-[10px] ml-[1px] select-none">Display Name</div>
+                <div className="flex relative top-1/2 select-none">
+                    <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748b] z-1 select-none" />
+                    <input type="text" className={`border w-full h-[50px] rounded-[10px] bg-[#f8fafc]  relative pl-[50px] text-[#64748b] hover:text-[#3e4856]  outline-0 ${displayNameError?"border border-red-500":"border-[#dbe4ee]"}`} onChange={(e:any)=>(
+                        setdisplayNameError(""),
+                        setuserData({...userData,displayName:e.target.value})
+                    )} value={userData.displayName} />
+                </div>
+                {displayNameError && (<p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{displayNameError}</p>)}
+            </div>
+            <div className="select-none">
+                <div className="text-[#64748b] text-sm mb-[10px] ml-[1px] select-none">Password</div>
+                <div className="flex relative top-1/2 select-none">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748b] z-1 select-none" />
+                    <input type={showPassword?"text":"password"} maxLength={20} className={`border w-full h-[50px] rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative pl-[50px] text-[#64748b] outline-0 ${displayNameError?"border border-red-500":"border-[#dbe4ee]"}`} onChange={(e:any)=>{
+                        setdisplayNameError("");
+                        setuserData({...userData,password:e.target.value});
+                        
+                    }} value={userData.password} onMouseEnter={()=>(
+                            setshowPassword(true)
+                        )} onMouseLeave={()=>{
+                                setshowPassword(false)
+                            }} />
+                </div>
+                {passwordError && (<p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{passwordError}</p>)}
+            </div>
+
+            
+            <div className="select-none cursor-not-allowed">
+                <div className="text-[#64748b] text-sm mb-[10px] ml-[1px] select-none">Role</div>
+                <div className="flex relative top-1/2 select-none">
+                    {userData.roleType==="nurse"?<Shield className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748b] z-1 select-none" />:<Stethoscope className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748b] z-1 select-none" />}
+                    <input type="text" disabled className={`border w-full h-[50px] rounded-[10px] bg-[#f1f5f9] border-[#dbe4ee] relative pl-[50px] text-[#64748b] select-none cursor-not-allowed`} defaultValue={userData.roleType} readOnly />
+                </div>
+            </div>
+
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 mt-8">
+            <button type="submit" className="flex-1 min-h-[50px] rounded-xl bg-[#1e3a5f] hover:bg-[#245188] text-white transition-all flex items-center justify-center gap-2 font-medium cursor-pointer">
+                <Save className="w-4 h-4" /> Save Changes
+            </button>
+
+            <button onClick={() => {
+                setselectedUser(null)
+                }} className="h-12 px-5 rounded-[10px] border border-[#dbe4ee] hover:bg-red-100 hover:border-red-100 transition-all font-medium cursor-pointer">Cancel</button>
+            </div>
+        </form>
+
+      </div>
+    </div>
+  );
 }
 
-type Props = {
-    getUserList: () => void
-    setdisplayAddUser: React.Dispatch<React.SetStateAction<boolean>>
-}
-function AddUserComponent({getUserList,setdisplayAddUser}: Props){
-    const[userData,setuserData]=useState<{username:string,displayName:string,password:string,roleType:string}>({username:"",displayName:"",password:"",roleType:"doctor"})
-    const [errorMessage,seterrorMessage]=useState<string>("")
-
-    async function AddUserPost(){
-        console.log(userData)
-        const addUser = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/admin/adduser`,userData,{withCredentials: true })
-        console.log(addUser.data)
-        if(addUser.data.status==="unableToCreateUser"){
-            setdisplayAddUser(false)
-        }else if(addUser.data.status==="missingData"){
-            seterrorMessage("fill all the fields")
-        }else{
-            setdisplayAddUser(false)
-            getUserList()
-        }
+function AddUserModal({getUserList,setdisplayAddUser,}: any) {
+  const [userData, setuserData] = useState({username: "",displayName: "",password: "",roleType: "doctor",});
+  const [errorMessage,seterrorMessage]=useState<{username:string,displayName:string,password:string,userCreated:string}>({username:"",displayName:"",password:"",userCreated:""})
+  const[showPassword,setshowPassword]=useState<boolean>(false)
+  async function AddUserPost() {
+    const addUser = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/admin/adduser`,userData,{ withCredentials: true });
+    if(addUser.data.status==="missingData"){
+        console.log("missing data")
+    }else if(addUser.data.status==="unableToCreateUser"){
+        seterrorMessage({...errorMessage,username:"Username is Taken"})
+    }else{
+        getUserList();
+        seterrorMessage({...errorMessage,userCreated:"User Created"})
+        setTimeout(() => {
+            setdisplayAddUser(false);
+        }, 3000);
 
     }
-    return(
-        <div className="bg-blue-500 m-[10px] p-[10px] rounded-[5px] text-white font-medium text-center mb-[20px] w-fit ml-auto mr-auto">
-                <div className="text-[25px] ">Add A New User</div>
-                <div className="bg-white text-red-500 rounded-[5px] font-bold">{errorMessage?errorMessage:""}</div>
-                <div className="flex  p-[5px]">
-                    <div className=" p-[10px] ">
-                        <div className="flex flex-col text-start">
-                            <div className="">USERNAME <span className="text-red-500">*</span></div>
-                            <input type="text" maxLength={15} className="bg-yellow-50 rounded-[5px] outline-0 p-[5px] text-black" required onChange={(e)=>{
-                                setuserData({...userData,username:e.target.value})
-                            }}/>
-                        </div>
-                        <div className="flex flex-col text-start mt-[5px]">
-                            <div className="">DISPLAY NAME <span className="text-red-500">*</span></div>
-                            <input type="text" maxLength={30} className="bg-yellow-50 rounded-[5px] outline-0 p-[5px] text-black" required onChange={(e)=>{
-                                setuserData({...userData,displayName:e.target.value})
-                            }}/>
-                        </div>
-                        <div className="flex flex-col text-start mt-[5px]">
-                            <div className="">PASSWORD <span className="text-red-500">*</span></div>
-                            <input type="text" maxLength={20} className="bg-yellow-50 rounded-[5px] outline-0 p-[5px] text-black min-w-[300px]" required onChange={(e)=>{
-                                setuserData({...userData,password:e.target.value})
-                            }}/>
-                        </div>
-                        <div className="flex flex-col text-start mt-[5px]">
-                            <div className="">ROLE <span className="text-red-500">*</span></div>
-                                <select value={userData.roleType} className="outline-0 bg-yellow-50 text-black cursor-pointer rounded-[5px]" onChange={(e) => {
-                                    setuserData({...userData,roleType:e.target.value})
-                                }} required>
-                                    <option value="doctor" selected className="font-medium">DOCTOR</option>
-                                    <option value="nurse" className="font-medium">NURSE</option>
-                                </select>
-                        </div>
-                    </div>
-                    
-                </div>
-                <div className="flex place-content-evenly">
-                    <button className="text-[20px] p-[5px] pl-[10px] pr-[10px] bg-green-500 mt-[10px] rounded-[5px] font-bold cursor-pointer hover:bg-green-600 "onClick={()=>{
-                        AddUserPost()
-                    }}>Add User</button>
-                    <button className="text-[20px] p-[5px] pl-[10px] pr-[10px] bg-red-500 mt-[10px] rounded-[5px] font-bold cursor-pointer hover:bg-red-600" onClick={()=>{
-                        setdisplayAddUser(false)
-                    }}>Cancel</button>
-                </div>
+
+  }
+
+  
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className={`w-full max-w-lg ${errorMessage.userCreated?"bg-green-300":"bg-white"} rounded-3xl border border-[#e8edf2] shadow-xl p-5 sm:p-8`}>
+
+        <div className="flex items-center justify-between mb-[10px]">
+          <div>
+            <h1 className="text-2xl font-semibold text-[#1e293b]"> Add User </h1>
+            <p className="text-sm text-[#64748b] mt-1"> Create doctor or nurse account</p>
+          </div>
+
+          <button onClick={() => { setdisplayAddUser(false);}} className="w-11 h-11 rounded-xl hover:bg-red-100 flex items-center justify-center cursor-pointer">
+            <X className="w-5 h-5" />
+          </button>
         </div>
-    )
+        <form onSubmit={(e)=>{
+            e.preventDefault();
+            if(userData.username){
+                seterrorMessage({...errorMessage,username:""})
+                if(userData.displayName){
+                    seterrorMessage({...errorMessage,displayName:""})
+                    if(userData.password){
+                        seterrorMessage({...errorMessage,password:""})
+                        AddUserPost()
+                    }else{
+                        seterrorMessage({...errorMessage,password:"Password Cannot Be Empty"})
+                    }
+                }else{
+                    seterrorMessage({...errorMessage,displayName:"Display Name Cannot Be Empty"})
+                }
+            }else{
+                seterrorMessage({...errorMessage,username:"Username Cannot Be Empty"})
+            }
+        }}>
+            <div className="space-y-5">
+
+                <div className="select-none">
+                    <div className="text-[#64748b] text-sm mb-[10px] ml-[1px] select-none">Username</div>
+                    <div className="flex relative top-1/2 select-none">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748b] z-1 select-none" />
+                        <input type="text" maxLength={20} className={`border w-full h-[50px] rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative pl-[50px] text-[#64748b] outline-0 ${errorMessage.username?"border border-red-500":"border-[#dbe4ee]"}`} onChange={(e:any)=>{
+                            seterrorMessage({...errorMessage,username:""})
+                            setuserData({...userData,username:e.target.value});
+                        }} value={userData.username}/>
+                    </div>
+                    {errorMessage.username && (<p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errorMessage.username}</p>)}
+                </div>
+
+                <div className="select-none">
+                    <div className="text-[#64748b] text-sm mb-[10px] ml-[1px] select-none">Display Name</div>
+                    <div className="flex relative top-1/2 select-none">
+                        <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748b] z-1 select-none" />
+                        <input type="text" maxLength={20} className={`border w-full h-[50px] rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative pl-[50px] text-[#64748b] outline-0 ${errorMessage.displayName?"border border-red-500":"border-[#dbe4ee]"}`} onChange={(e:any)=>{
+                            seterrorMessage({...errorMessage,displayName:""})
+                            setuserData({...userData,displayName:e.target.value});
+                            
+                        }} value={userData.displayName}/>
+                    </div>
+                    {errorMessage.displayName && (<p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errorMessage.displayName}</p>)}
+                </div>
+
+
+                <div className="select-none">
+                    <div className="text-[#64748b] text-sm mb-[10px] ml-[1px] select-none">Password</div>
+                    <div className="flex relative top-1/2 select-none">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748b] z-1 select-none" />
+                        <input type={showPassword?"text":"password"} maxLength={20} className={`border w-full h-[50px] rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative pl-[50px] text-[#64748b] outline-0 ${errorMessage.password?"border border-red-500":"border-[#dbe4ee]"}`} onChange={(e:any)=>{
+                            seterrorMessage({...errorMessage,password:""})
+                            setuserData({...userData,password:e.target.value});
+                            
+                        }} value={userData.password} onMouseEnter={()=>(
+                                setshowPassword(true)
+                            )} onMouseLeave={()=>{
+                                    setshowPassword(false)
+                                }} />
+                    </div>
+                    {errorMessage.password && (<p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errorMessage.password}</p>)}
+                </div>
+
+            <div>
+                <label className="block mb-2 text-sm font-medium text-[#64748b]">
+                    Role
+                </label>
+
+                <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748b]">
+                    {userData.roleType==="doctor"?<Stethoscope className="w-4 h-4" />:<Shield className="w-4 h-4" />} 
+                </div>
+
+                <select value={userData.roleType} onChange={(e) =>
+                    setuserData({...userData,roleType: e.target.value,})
+                    }
+                    className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] pl-11 pr-5 outline-none cursor-pointer ">
+                    <option value="doctor">Doctor</option>
+                    <option value="nurse">Nurse</option>
+                </select>
+                </div>
+            </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 mt-8">
+            <button type="submit"className="flex-1 min-h-[50px] rounded-xl bg-[#1e3a5f] hover:bg-[#245188] text-white transition-all flex items-center justify-center gap-2 font-medium cursor-pointer">
+                <Plus className="w-4 h-4" />
+                Add User
+            </button>
+
+            <button onClick={() => {
+                setdisplayAddUser(null)
+                }} className="h-12 px-5 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-red-100 hover:border-red-100 transition-all font-medium cursor-pointer">Cancel</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  );
 }
