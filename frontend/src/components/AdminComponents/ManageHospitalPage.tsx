@@ -14,7 +14,7 @@ export function ManageHospitalPage(){
         if(userList.data.status==="unableToGetHospitalList"){
             sethospitalListDataError("error unable to fetch hospital list")
         }else{
-            sethospitalListData(userList.data.userdata)
+            sethospitalListData(userList.data.hospitalData)
 
         }
     }

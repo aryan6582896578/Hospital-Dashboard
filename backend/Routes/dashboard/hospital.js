@@ -28,14 +28,14 @@ export default function Dashboardroute(app){
                 if(req.roleType==='admin'){
                     const getHospitalList = await pool.query(`SELECT * FROM hospitalinfo `);
                     if(getHospitalList.rows){
-                        res.json({userdata:getHospitalList.rows})
+                        res.json({hospitalData:getHospitalList.rows})
                     }else{
                         res.json({status:"unableToGetHospitalList"})
                     }
                 }else{
                     const getHospitalList = await pool.query(`SELECT * FROM hospitalinfo WHERE $1 = ANY(doctorlist) OR $1 = ANY(nurselist)`,[req.username]);
                     if(getHospitalList.rows){
-                        res.json({userdata:getHospitalList.rows})
+                        res.json({hospitalData:getHospitalList.rows})
                     }else{
                         res.json({status:"unableToGetHospitalList"})
                     }

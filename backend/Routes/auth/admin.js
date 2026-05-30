@@ -99,7 +99,7 @@ export default function authroute(app){
     })
 
     router.get('/admin/listuser',checkJwt, async(req, res) => {
-        if(req.validUser){
+        if(req.validUser && req.roleType==="admin"){
             try {
                 const getUserList = await pool.query('SELECT * FROM userinfo WHERE NOT username=($1)',['admin']);
                     if(getUserList){
@@ -121,7 +121,7 @@ export default function authroute(app){
         const username = req.body.username
         const displayname = req.body.displayName
         const password=req.body.password
-        if(req.validUser){
+        if(req.validUser && req.roleType==="admin"){
             console.log(username,displayname,password)
             if(username&&displayname&&password){
                 try {
@@ -149,7 +149,7 @@ export default function authroute(app){
         const displayname = req.body.displayName
         const doctorList=req.body.doctorList
         const nurseList=req.body.nurseList 
-        if(req.validUser){
+        if(req.validUser && req.roleType==="admin"){
             console.log(name,displayname,doctorList,nurseList)
             if(name&&displayname){
                 try {
@@ -174,11 +174,11 @@ export default function authroute(app){
     })
     router.get('/admin/listhospital',checkJwt, async(req, res) => {
 
-        if(req.validUser){
+        if(req.validUser && req.roleType==="admin"){
             try {
                 const getHospitalList = await pool.query('SELECT * FROM hospitalinfo');
                     if(getHospitalList){
-                        res.json({userdata:getHospitalList.rows})
+                        res.json({hospitalData:getHospitalList.rows})
                     }else{
                         res.json({status:"unableToGetHospitalList"})
                     }
@@ -196,7 +196,7 @@ export default function authroute(app){
         const displayname = req.body.displayName
         const doctorList=req.body.doctorList
         const nurseList=req.body.nurseList 
-        if(req.validUser){
+        if(req.validUser && req.roleType==="admin"){
             console.log(name,displayname,doctorList,nurseList)
             if(name&&displayname){
                 try {

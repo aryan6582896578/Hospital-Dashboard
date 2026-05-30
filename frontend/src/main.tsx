@@ -1,6 +1,6 @@
 // import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import "./index.css";
 import HomePage from "./components/HomePage";
@@ -36,6 +36,7 @@ const router = createBrowserRouter([
       { path: "admin", 
         Component: AdminPage,
         children:[
+          {index: true,element: <Navigate to="/dashboard" replace />},
           {path:"manageuser", Component: ManageUserPage},
           {path:"managehospital", Component: ManageHospitalPage},
         ] },

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import axios from "axios";
 import {
@@ -13,13 +13,12 @@ import {
   Lock,
   Edit,
   Stethoscope,
-  Activity,
   AlertCircle,
 } from "lucide-react";
-import { UserRoleContext } from "../AuthPage";
+
+import SidebarComponent from "./SidebarComponent";
 
 export function ManageUserPage() {
-    const userRole = useContext<any>(UserRoleContext);
     const [displayAddUser, setdisplayAddUser] = useState(false);
     const [userListData, setuserListData] = useState<any[]>([]);
     const [selectedUser, setselectedUser] = useState<any>(null);
@@ -49,39 +48,7 @@ export function ManageUserPage() {
   return (
     <div className="bg-[#f6f8fb] flex h-full flex-col lg:flex-row overflow-y-auto">
        
-      <div className="bg-white justify-between flex-col flex" >
-        <Link to="/dashboard">
-          <div className="h-20  flex items-center border-b border-[#e8edf2]">
-            <div className=" flex items-center gap-3 mb-8 justify-center mt-[20px] ml-[10px]">
-              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white">
-                <Activity className="w-7 h-7" strokeWidth={1.5} />
-              </div>
-              <div>
-                <h1 className="text-2xl text-blue-900 font-semibold">
-                  lforlungscare
-                </h1>
-                <p className="text-sm text-blue-600 font-semibold">
-                  Admin Dashboard
-                </p>
-              </div>
-            </div>
-          </div>
-        </Link>
-        <div className="p-4 border-t border-[#e8edf2] select-none lg:flex hidden">
-          <div className="flex items-center gap-3 ">
-            <div className="w-11 h-11 rounded-full bg-blue-900 text-white flex items-center justify-center font-bold hover:bg-white duration-[0.3s] hover:text-blue-900 cursor-pointer border-2 border-blue-900">
-              {userRole.displayname?.[0]}
-            </div>
-
-            <div>
-              <h2 className="text-s font-bold text-blue-900 ">
-                {userRole.displayname}
-              </h2>
-              <h1 className="text-xs text-[#64748b]">@{userRole.username}</h1>
-            </div>
-          </div>
-        </div>
-      </div>
+    <SidebarComponent/>
 
       <div className="w-full flex flex-col">
         <div className="min-h-20 bg-white border-b border-[#e8edf2] px-3 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 ">
