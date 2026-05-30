@@ -24,8 +24,9 @@ export function ManageHospitalPage() {
         return (x.displayname?.toLowerCase().includes(searchValue.toLowerCase()) ||x.name?.toLowerCase().includes(searchValue.toLowerCase()));
     });
   }, [searchValue, hospitalListData]);
+
   useEffect(() => {
-      if(filteredHospital.length!=0){
+      if(filteredHospital?.length!=0){
         setisEmptySearch(false)
       }else{
         setisEmptySearch(true)

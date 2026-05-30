@@ -14,6 +14,7 @@ import {
   Edit,
   Stethoscope,
   AlertCircle,
+  UserRoundXIcon,
 } from "lucide-react";
 
 import SidebarComponent from "./SidebarComponent";
@@ -24,7 +25,7 @@ export function ManageUserPage() {
     const [selectedUser, setselectedUser] = useState<any>(null);
     const [searchValue, setsearchValue] = useState("");
     const [showPassword,setshowPassword]=useState<{show:boolean,user:any}>({show:false,user:""})
-
+    const[isEmptySearch,setisEmptySearch]=useState<boolean>(false)
     async function getUserList() {
         const userList = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/admin/listuser`,{ withCredentials: true });
         setuserListData(userList.data.userdata || []);
@@ -36,14 +37,17 @@ export function ManageUserPage() {
 
   const filteredUsers = useMemo(() => {
     return userListData.filter((x: any) => {
-      return (
-        x.displayname
-          ?.toLowerCase()
-          .includes(searchValue.toLowerCase()) ||
-        x.username?.toLowerCase().includes(searchValue.toLowerCase())
-      );
+      return (x.displayname?.toLowerCase().includes(searchValue.toLowerCase()) || x.username?.toLowerCase().includes(searchValue.toLowerCase()));
     });
   }, [searchValue, userListData]);
+  useEffect(() => {
+      if(filteredUsers?.length!=0){
+        setisEmptySearch(false)
+      }else{
+        setisEmptySearch(true)
+      }
+
+  }, [filteredUsers])
 
   return (
     <div className="bg-[#f6f8fb] flex h-full flex-col lg:flex-row overflow-y-auto">
@@ -141,6 +145,14 @@ export function ManageUserPage() {
                 </div>
               );
             })}
+            {isEmptySearch?
+                <div className="flex flex-col mt-[50px]">
+                    <div className="bg-blue-400 w-fit p-[20px] rounded-full self-center mb-[20px]"> <UserRoundXIcon className="h-[60px] w-[60px] stroke-[1.2] text-white" /></div>
+                    <div className="flex flex-col">
+                        <h1 className="font-bold text-[25px] self-center mb-[10px]">No User Found</h1>
+                        <p className="text-[15px] text-[#64748b] ml-auto mr-auto w-[80%] text-center">There are no users with the given name</p>
+                    </div>
+                </div>:""}
 
           </div>
 

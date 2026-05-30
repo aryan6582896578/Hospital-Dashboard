@@ -37,14 +37,14 @@ export default function HomePage() {
               <Activity className="w-10 h-10 text-white" strokeWidth={1} />
             </div>
             <div>
-              <h1 className="text-4xl text-blue-900 font-semibold">lforlungscare</h1>
-              <p className="text-s text-blue-600 font-semibold">Hospital Management System</p>
+              <h1 className="text-4xl text-blue-900 ">lforlungscare</h1>
+              <p className="text-s text-blue-600 ">Hospital Management System</p>
             </div>
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-3xl text-blue-900 font-semibold">Welcome Back</h2>
-            <p className="text-lg text-blue-700 font-medium">
+            <h2 className="text-3xl text-blue-900 ">Welcome Back</h2>
+            <p className="text-lg text-blue-700 ">
               Access your hospital dashboard to manage patient data, appointments,
               and medical records all in one place.
             </p>
@@ -59,13 +59,13 @@ export default function HomePage() {
                 <Activity className="w-7 h-7 text-white" strokeWidth={1.5} />
               </div>
               <div>
-                <h1 className="text-2xl text-blue-900 font-semibold">lforlungscare</h1>
-                <p className="text-sm text-blue-600 font-semibold">Hospital Management System</p>
+                <h1 className="text-2xl text-blue-900 ">lforlungscare</h1>
+                <p className="text-sm text-blue-600 ">Hospital Management System</p>
               </div>
             </div>
 
             <div className="mb-8 ">
-              <h2 className="text-3xl text-gray-900 mb-2 font-semibold">Sign In</h2>
+              <h2 className="text-3xl text-gray-900 mb-2 ">Sign In</h2>
               {cookieCheck?"":<p className="text-xs sm:text-sm text-gray-600 font-medium">Enter your credentials to access your account</p>}
             </div>
             {cookieCheck ? (
@@ -139,7 +139,7 @@ export default function HomePage() {
                   </button>
                 </div>
 
-                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 group cursor-pointer font-semibold">
+                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 group cursor-pointer ">
                   Sign In <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
               </form>
