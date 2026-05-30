@@ -55,22 +55,13 @@ export function ManageUserPage() {
           <div className="relative w-full lg:max-w-xl">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b]" />
             {searchValue && (
-              <X
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b] cursor-pointer"
-                onClick={() => {
+              <X className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b] cursor-pointer" onClick={() => {
                   setsearchValue("");
-                }}
-              />
+                }}/>
             )}
-            <input
-              type="text"
-              placeholder="Search doctors or nurses..."
-              className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] pl-11 pr-4 outline-none "
-              value={searchValue}
-              onChange={(e) => {
+            <input type="text" placeholder="Search doctors or nurses..." className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] pl-11 pr-4 outline-none " value={searchValue}onChange={(e) => {
                 setsearchValue(e.target.value);
-              }}
-            />
+              }}/>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
@@ -81,12 +72,10 @@ export function ManageUserPage() {
               </button>
             </Link>
 
-            <button
-              onClick={() => {
+            <button onClick={() => {
                 setdisplayAddUser(true);
               }}
-              className="flex-1 lg:flex-none h-11 px-5 rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white transition-all flex items-center justify-center gap-2 font-semibold cursor-pointer"
-            >
+              className="flex-1 lg:flex-none h-11 px-5 rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white transition-all flex items-center justify-center gap-2 font-semibold cursor-pointer">
               <Plus className="w-5 h-5 text-white " />
               Add User
             </button>

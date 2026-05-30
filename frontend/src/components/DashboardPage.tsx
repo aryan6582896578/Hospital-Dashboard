@@ -7,13 +7,10 @@ import SidebarComponent from "./AdminComponents/SidebarComponent";
 export function DashboardPage() {
 
   return (
-    <div className="bg-[#f6f8fb] flex h-full flex-col lg:flex-row overflow-y-auto w-full">
+    <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row">
 
-        <SidebarComponent/>
-
-        <div className="flex h-full w-full">
-            <ListHospital/>
-        </div>
+        <SidebarComponent />
+        <ListHospital />
 
     </div>
 
@@ -36,12 +33,12 @@ function ListHospital() {
     getHospitalList();
   }, []);
   return (
-    <div className="w-full flex flex-col p-[20px]  pb-[40px] select-none">
+    <div className="w-full flex flex-col p-[20px] pb-[20px] overflow-y-auto select-none ">
         <div className="m-[20px] ">
             <h1 className="font-bold text-[25px]">Hospitals Overview</h1>
             <p className="text-[15px] text-[#64748b] ">Select a hospital to view and manage patient data</p>
         </div>
-        <div className="bg-white p-[30px] min-h-[500px] h-fit overflow-y-auto flex flex-col border border-[#dbe4ee] rounded-[10px] shadow-sm" >
+        <div className="bg-white p-[30px] overflow-y-auto flex flex-col border border-[#dbe4ee] rounded-[10px] shadow-sm" >
             {hospitalListData?
             <div className="">
                 {hospitalListData?.map((x: any) => {
@@ -50,8 +47,8 @@ function ListHospital() {
                             <div className="bg-white border border-slate-200 rounded-[10px] p-[15px] mb-[20px] shadow-sm hover:shadow-md hover:bg-slate-100 cursor-pointer">
                                 <div className="flex items-start justify-between">
                                     <div>
-                                        <h2 className="text-[28px] font-bold text-blue-600 flex"><HospitalIcon className="h-[40px] w-[40px] mr-[15px] text-black" /> {x.displayname}</h2>
-                                        <p className="text-[14px] text-slate-500 mt-[2px] hover:underline ml-[55px]">{x.name}</p>
+                                        <h2 className="text-[28px] font-bold text-blue-600 flex break-all "><HospitalIcon className="h-[40px] w-[40px] mr-[15px] text-black " /> {x.displayname}</h2>
+                                        <p className="text-[14px] text-slate-500 mt-[2px] hover:underline ml-[55px] break-all">{x.name}</p>
                                     </div>
                                 </div>
 
