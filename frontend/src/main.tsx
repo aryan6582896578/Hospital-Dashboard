@@ -11,7 +11,8 @@ import { AdminPage } from "./components/AdminComponents/AdminPage.tsx";
 import { ManageUserPage } from "./components/AdminComponents/ManageUserPage.tsx";
 import { ManageHospitalPage } from "./components/AdminComponents/ManageHospitalPage.tsx";
 import { HospitalPage } from "./components/DashboardComponents/HospitalPage.tsx";
-import AddPaitentPage from "./components/DashboardComponents/AddPaitentPage.tsx";
+import { FinancePage } from "./components/DashboardComponents/FinancePage.tsx";
+import { PaitentPage } from "./components/DashboardComponents/PaitentPage.tsx";
 
 
 const router = createBrowserRouter([
@@ -30,7 +31,8 @@ const router = createBrowserRouter([
       //   ]
       // },
       {path:":hospitalname",Component: HospitalPage},
-      {path:":hospitalname/:user",Component: AddPaitentPage},
+      {path:":hospitalname/finance",Component: FinancePage},
+      {path:":hospitalname/patients",Component: PaitentPage},
       { index: true, 
         Component: DashboardPage },
       { path: "admin", 

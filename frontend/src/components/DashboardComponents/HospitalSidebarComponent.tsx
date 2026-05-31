@@ -1,12 +1,14 @@
 import { useContext} from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { UserRoleContext } from "../AuthPage";
-import { ActivityIcon, HomeIcon, Hospital, LogOutIcon, UserSearch } from "lucide-react";
+import { ActivityIcon, ClipboardClockIcon, HomeIcon, LogOutIcon, UserPenIcon, Wallet } from "lucide-react";
 import axios from "axios";
 
-export default function SidebarComponent(){
+export default function HospitalSidebarComponent(){
     const userRole = useContext<any>(UserRoleContext);
     let navigate = useNavigate();
+    const parms=useParams();
+    // console.log(parms.hospitalname)
     async function logout() {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`,{ withCredentials: true });
         if (response.data.status === "logout") {
@@ -37,10 +39,11 @@ export default function SidebarComponent(){
             <div className="lg:mt-[20px] flex flex-col lg:mb-[20px] ">
                 <div className="flex lg:flex-col ">
                     <Link to="/dashboard"> <button className="flex  rounded-[5px] hover:bg-slate-100 cursor-pointer p-[10px] pl-[20px] pr-[20px]  lg:ml-auto lg:mr-auto  lg:mt-[10px] lg:min-w-[90%] min-w-fit"> <HomeIcon className="mr-[10px] text-blue-600"/>Home</button></Link>
-                    {userRole.roleType==="admin" && 
+                    <Link to={`/dashboard/${parms.hospitalname}`}> <button className="flex  rounded-[5px] hover:bg-slate-100 cursor-pointer p-[10px] pl-[20px] pr-[20px]  lg:ml-auto lg:mr-auto  lg:mt-[10px] lg:min-w-[90%] min-w-fit"> <ClipboardClockIcon className="mr-[10px] text-blue-600"/>Appointments</button></Link>
+                    {(userRole.roleType==="admin" || userRole.roleType==="doctor") && 
                         <div className="flex lg:flex-col">
-                            <Link to="/dashboard/admin/manageuser"> <button className="flex  rounded-[5px] hover:bg-slate-100 cursor-pointer p-[10px] pl-[20px] pr-[20px]  lg:ml-auto lg:mr-auto  lg:mt-[10px] lg:min-w-[90%] min-w-fit"> <UserSearch className="mr-[10px] text-blue-600"/>Users </button></Link>
-                            <Link to="/dashboard/admin/managehospital"> <button className="flex  rounded-[5px] hover:bg-slate-100 cursor-pointer p-[10px] pl-[20px] pr-[20px]  lg:ml-auto lg:mr-auto lg:mt-[10px] lg:min-w-[90%] min-w-fit"> <Hospital className="mr-[10px] text-blue-600"/>Hospitals </button></Link>
+                            <Link to={`/dashboard/${parms.hospitalname}/finance`}> <button className="flex  rounded-[5px] hover:bg-slate-100 cursor-pointer p-[10px] pl-[20px] pr-[20px]  lg:ml-auto lg:mr-auto  lg:mt-[10px] lg:min-w-[90%] min-w-fit"> <Wallet className="mr-[10px] text-blue-600"/>Finance </button></Link>
+                            <Link to={`/dashboard/${parms.hospitalname}/patients`}> <button className="flex  rounded-[5px] hover:bg-slate-100 cursor-pointer p-[10px] pl-[20px] pr-[20px]  lg:ml-auto lg:mr-auto lg:mt-[10px] lg:min-w-[90%] min-w-fit"> <UserPenIcon className="mr-[10px] text-blue-600"/>Patients </button></Link>
                         </div>
                     }
                 </div>

@@ -161,7 +161,7 @@ export function ManageUserPage() {
 
       </div>
 
-      {displayAddUser && (<AddUserModal getUserList={getUserList} setdisplayAddUser={setdisplayAddUser}/>)}
+      {displayAddUser && (<AddUserComponent getUserList={getUserList} setdisplayAddUser={setdisplayAddUser}/>)}
 
       {selectedUser && (<EditUserComponent selectedUser={selectedUser}setselectedUser={setselectedUser}getUserList={getUserList}/>)}
     </div>
@@ -279,7 +279,7 @@ function EditUserComponent({selectedUser,setselectedUser,getUserList}: any) {
   );
 }
 
-function AddUserModal({getUserList,setdisplayAddUser,}: any) {
+function AddUserComponent({getUserList,setdisplayAddUser,}: any) {
   const [userData, setuserData] = useState({username: "",displayName: "",password: "",roleType: "doctor",});
   const [errorMessage,seterrorMessage]=useState<{username:string,displayName:string,password:string,userCreated:string}>({username:"",displayName:"",password:"",userCreated:""})
   const[showPassword,setshowPassword]=useState<boolean>(false)
@@ -408,7 +408,7 @@ function AddUserModal({getUserList,setdisplayAddUser,}: any) {
             </button>
 
             <button onClick={() => {
-                setdisplayAddUser(null)
+                setdisplayAddUser(false)
                 }} className="h-12 px-5 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-red-100 hover:border-red-100 transition-all font-medium cursor-pointer">Cancel</button>
             </div>
         </form>

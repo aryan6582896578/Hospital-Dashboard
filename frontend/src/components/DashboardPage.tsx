@@ -68,7 +68,7 @@ function ListHospital() {
             <p className="text-[15px] text-[#64748b] ">Select a hospital to view and manage patient data</p>
         </div>
         <div className="bg-white p-[30px] ml-[10px] mr-[10px] overflow-y-auto flex flex-col border border-[#dbe4ee] rounded-[10px] shadow-sm" >
-            {filteredHospital?
+
             <div className="">
                 {filteredHospital?.map((x: any) => {
                     return (
@@ -111,14 +111,7 @@ function ListHospital() {
                             </div>
                     </div>:""}
             </div>
-            :
-            <div className="flex flex-col">
-                <div className="bg-blue-400 w-fit p-[20px] rounded-full self-center mb-[20px]"><HospitalIcon className="h-[60px] w-[60px] stroke-[1.2] text-white" /></div>
-                <div className="flex flex-col">
-                    <h1 className="font-bold text-[25px] self-center mb-[10px]">No Hospitals Available</h1>
-                    <p className="text-[15px] text-[#64748b] ml-auto mr-auto w-[80%] text-center">There are no hospitals Available Please Contact Admin.</p>
-                </div>
-            </div>}    
+  
 
         </div>
 

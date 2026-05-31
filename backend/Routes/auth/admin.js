@@ -155,7 +155,7 @@ export default function authroute(app){
                 try {
                     const savehospitalinfo = await pool.query('INSERT INTO hospitalinfo(name,displayname,doctorList,nurseList) VALUES ($1,$2,$3,$4) RETURNING * ',
                         [`${name}`,`${displayname}`,doctorList,nurseList]);
-                    if(savehospitalinfo){
+                    if(savehospitalinfo.rows[0]){
                         res.json({status:"hospitalCreated"})
                     }
                 } catch (error) {

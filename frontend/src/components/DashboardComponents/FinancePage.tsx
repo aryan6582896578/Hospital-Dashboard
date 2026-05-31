@@ -5,7 +5,7 @@ import axios from "axios";
 import { Loader2Icon} from "lucide-react";
 import HospitalSidebarComponent from "./HospitalSidebarComponent";
 
-export function HospitalPage(){
+export function FinancePage(){
     const userRole = useContext<any>(UserRoleContext);
     const[hasAccess,sethasAccess]=useState<boolean>(false)
     const[isLoading,setisLoading]=useState<boolean>(true)
@@ -15,13 +15,12 @@ export function HospitalPage(){
 
     async function getHospital(){
         const hospitalData = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/dashboard/gethospital`,{params:{hospitalname:parms.hospitalname},withCredentials: true})
-        console.log(hospitalData.data.hospitalData)
-        if(hospitalData.data.status==="validUser" && userRole.roleType===hospitalData.data.type ){
+        if(hospitalData.data.status==="validUser" && userRole.roleType===hospitalData.data.type){
             sethasAccess(true)
             setisLoading(false)
         }else if(hospitalData.data.status==="invalidHospital"){
             navigate("/dashboard")
-        }   
+        }
         console.log(hospitalData.data.status)
     }
 
@@ -55,7 +54,7 @@ function AppointmentsPage({parms}:{parms:any}){
     return(
         <div className="">
             {parms.hospitalname}
-            appointments
+            FinancePage
         </div>
     )
 }

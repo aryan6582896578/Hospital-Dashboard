@@ -55,20 +55,34 @@ export default function Dashboardroute(app){
         if(req.validUser){
             if(req.roleType==='admin'){
                 const getHospitalData= await pool.query(`SELECT * FROM hospitalinfo WHERE name=$1 `,[req.query.hospitalname])
-                if(getHospitalData.rows){
-                    res.json({status:getHospitalData.rows})
+                if(getHospitalData.rows[0]){
+                    res.json({status:"validUser",type:"admin",hospitalData:getHospitalData.rows})
+                }else{
+                    res.json({status:"invalidHospital"})
                 }
-            }else{
-            try {
-                
-                console.log(req.query.hospitalname,req.username )
-                const getHospitalData= await pool.query(`SELECT * FROM hospitalinfo WHERE name=$1 AND $2 = ANY(doctorlist) OR  $2 = ANY(nurselist)`,[req.query.hospitalname,req.username])
-                if(getHospitalData.rows){
-                    res.json({status:getHospitalData.rows,type:"other"})
-                }
+            }else if(req.roleType==='doctor'){
+                try {
+                    const getHospitalData= await pool.query(`SELECT * FROM hospitalinfo WHERE name=$1 AND $2 = ANY(doctorlist) OR  $2 = ANY(nurselist)`,[req.query.hospitalname,req.username])
+                    if(getHospitalData.rows[0]){
+                        res.json({status:"validUser",type:"doctor",hospitalData:getHospitalData.rows})
+                    }else{
+                        res.json({status:"invalidHospital"})
+                    }
                 } catch (error) {
-                    console.log("error in dashboard hospital page",error)
+                        console.log("error in dashboard hospital page",error)
                 }
+            }else if(req.roleType==="nurse"){
+                try {
+                    console.log(req.query.hospitalname,req.username,req.roleType )
+                    const getHospitalData= await pool.query(`SELECT * FROM hospitalinfo WHERE name=$1 AND $2 = ANY(nurselist)`,[req.query.hospitalname,req.username])
+                    if(getHospitalData.rows[0]){
+                        res.json({status:"validUser",type:"nurse",hospitalData:getHospitalData.rows})
+                    }else{
+                        res.json({status:"invalidHospital"})
+                     }
+                } catch (error) {
+                        console.log("error in dashboard hospital page",error)
+                }      
             }
 
                 
@@ -78,5 +92,5 @@ export default function Dashboardroute(app){
     
     })
     return router;
-
+// CURRENT_TIMESTAMP postgress auto fills it YYYY-MM-DD for dob
 }
