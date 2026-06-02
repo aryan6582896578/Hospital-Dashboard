@@ -1,68 +1,42 @@
-import { useContext, useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router";
-import { UserRoleContext } from "../AuthPage";
+import {useEffect, useMemo, useState } from "react";
+import { Link, useParams } from "react-router";
 import axios from "axios";
-import { AlertCircle, Loader2Icon, Plus, Search, User, X} from "lucide-react";
+import { AlertCircle, Plus, Search, User, User2Icon, X} from "lucide-react";
 import HospitalSidebarComponent from "./HospitalSidebarComponent";
 
 export function PaitentPage(){
-    const userRole = useContext<any>(UserRoleContext);
-    const[hasAccess,sethasAccess]=useState<boolean>(false)
-    const[isLoading,setisLoading]=useState<boolean>(true)
-    const[dataHospital,setdataHospital]=useState<any>();
     const[displayAddPaitent,setdisplayAddPatient]=useState<boolean>(false);
-    let navigate = useNavigate();
+    const[patientList,setpatientList]=useState<any[]>([]);
     const parms = useParams();
 
-    async function getHospital(){
-        const hospitalData = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/dashboard/gethospital`,{params:{hospitalname:parms.hospitalname},withCredentials: true})
-        
-        if(hospitalData.data.status==="validUser" && userRole.roleType===hospitalData.data.type){
-            sethasAccess(true)
-            setisLoading(false)
-            setdataHospital(hospitalData.data.hospitalData[0])
-        }else if(hospitalData.data.status==="invalidHospital"){
-            navigate("/dashboard")
-        }
-        }
 
-    useEffect(() => {
-        setisLoading(true)
-        getHospital()
-    }, [])
-    
-    if(isLoading){
-        return <LoadingPage/>
-    }else if(!hasAccess){
-        navigate("/dashboard")
-    }
-    else{
-        return(
-
-        <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row">
-
-            <HospitalSidebarComponent />
-            <PatientListComponent parms={parms} dataHospital={dataHospital} setdisplayAddPatient={setdisplayAddPatient}/>
-            {displayAddPaitent && <AddPatientComponent setdisplayAddPatient={setdisplayAddPatient} parms={parms} />}
-
-        </div>
-            
-        )
-    }
-
-}
-
-function PatientListComponent({parms,dataHospital,setdisplayAddPatient}:any){
-    const[searchValue,setsearchValue]=useState<string>("");
-    const[patientList,setpatientList]=useState<any[]>([]);
-    const[isEmptySearch,setisEmptySearch]=useState<boolean>(false);
     async function getPatientList(){
         const hospitalData = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getpaitentlist`,{params:{hospitalname:parms.hospitalname},withCredentials: true})
         if(hospitalData.data.patientlist){
             setpatientList(hospitalData.data.patientlist)
-            console.log(hospitalData.data.patientlist)
         }
     }
+    
+    return(
+
+        <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row">
+
+            <HospitalSidebarComponent />
+            <PatientListComponent parms={parms} patientList={patientList} getPatientList={getPatientList} setdisplayAddPatient={setdisplayAddPatient}/>
+            {displayAddPaitent && <AddPatientComponent setdisplayAddPatient={setdisplayAddPatient} parms={parms} getPatientList={getPatientList} />}
+            
+
+        </div>
+            
+    )
+
+}
+
+function PatientListComponent({parms,patientList,getPatientList,setdisplayAddPatient}:any){
+    const[searchValue,setsearchValue]=useState<string>("");
+
+    const[isEmptySearch,setisEmptySearch]=useState<boolean>(false);
+
     useEffect(() => {
       getPatientList()
     }, [])
@@ -82,8 +56,8 @@ function PatientListComponent({parms,dataHospital,setdisplayAddPatient}:any){
     }, [filteredPatient])
     
     return(
-        <div className=" bg-white w-full flex flex-col">
-            <div className="min-h-20 bg-white border-b border-[#e8edf2] px-3 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 ">
+        <div className=" bg-[#f6f8fb] w-full flex flex-col h-dvh overflow-hidden">
+            <div className="min-h-20 border-b bg-white border-[#e8edf2] px-3 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 ">
                 <div className="relative w-full lg:max-w-xl">
                     
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b]" />
@@ -92,34 +66,52 @@ function PatientListComponent({parms,dataHospital,setdisplayAddPatient}:any){
                         setsearchValue("");
                         }}/>
                     )}
-                    <input type="text" placeholder="Search Patient..." className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] pl-11 pr-4 outline-none " value={searchValue}onChange={(e) => {
+                    <input type="text" placeholder="Search Patient by name or phone number" className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] pl-11 pr-4 outline-none " value={searchValue}onChange={(e) => {
                         setsearchValue(e.target.value);
                     }}/>
                 </div>
                 <button onClick={() => {
                     setdisplayAddPatient(true);
                 }}
-                className="flex-1 lg:flex-none h-11 px-5 rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white transition-all flex items-center justify-center gap-2 font-semibold cursor-pointer">
+                className="flex-1 lg:flex-none min-h-11 px-5 rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white transition-all flex items-center justify-center gap-2 font-semibold cursor-pointer">
                 <Plus className="w-5 h-5 text-white " />
                 Add Patient
                 </button>
             </div>
-            <div className="">
-                <div className="">
-                    {dataHospital.displayname}
-                </div>
-                <div className="">
-                    {patientList?.map((x: any) => {
-                        return <div className="" >{x.fullname}</div>;
+            <div className="bg-[#f6f8fb] flex-1 min-h-0 flex flex-col overflow-y-auto overflow-x-hidden">
+                    {filteredPatient?.map((x: any) => {
+                        return (
+                        <Link to={`/dashboard/${parms.hospitalname}/patients/${x.patientid}`} key={x.patientid}> 
+                            <div className="bg-white m-[20px] flex cursor-pointer hover:bg-blue-100  rounded-[10px]" >
+                                <div className="w-11 h-11 rounded-full m-[20px] mr-[5px] bg-blue-400 text-white flex items-center justify-center font-medium duration-[0.3s] cursor-pointer">
+                                {x.fullname[0]}
+                                </div>
+                                <div className="ml-[10px] text-[20px] mt-auto mb-auto">
+                                    <div className="">{x.fullname}</div>
+                                    <div className="text-[#64748b] text-[15px] flex gap-2">
+                                        <div className="">Gender: {x.gender} </div>
+                                        {x.phonenumber && <div className="">Phone Number: {x.phonenumber} </div>}
+                                        {x.bloodgroup && <div className="">Blood Group: {x.bloodgroup} </div> }
+                                    </div>
+                                </div>
+                            </div>
+                        </Link>);
                     })}
-                </div>
+                    {isEmptySearch &&                        
+                    <div className="flex flex-col mt-[20px] bg-white m-[20px] rounded-[10px]  pt-[20px] pb-[40px]">
+                        <div className="bg-blue-400 w-fit p-[20px] rounded-full self-center mb-[20px]"><User2Icon className="h-[60px] w-[60px] stroke-[1.2] text-white" /></div>
+                            <div className="flex flex-col">
+                                <h1 className="font-bold text-[25px] self-center mb-[10px]">No Patient Found</h1>
+                                <p className="text-[15px] text-[#64748b] ml-auto mr-auto w-[80%] text-center">Try searching with other name or phone number</p>
+                            </div>
+                    </div>}
             </div>
         </div>
     )
 }
 
 
-function AddPatientComponent({setdisplayAddPatient,parms}: any) {
+function AddPatientComponent({setdisplayAddPatient,parms,getPatientList}: any) {
   const [patientData, setpatientData] = useState({fullname: "",gender: "Male",age:"",dob:"",phonenumber:"",bloodgroup:"",address:"",emergencycontactname:"",emergencycontactnumber:"",notes:"",allergies:"",chronicconditions:"",hospitalname: `${parms.hospitalname}`});
   const [errorMessage,seterrorMessage]=useState<{fullname:string}>({fullname:""})
   async function AddPatientPost() {
@@ -127,6 +119,7 @@ function AddPatientComponent({setdisplayAddPatient,parms}: any) {
     if(addPatient.data.status==="missingData"){
         console.log("missing data")
     }else if(addPatient.data.status==="patientCreated"){
+        getPatientList()
         setdisplayAddPatient(false);
         
     }else if(addPatient.data.status==="patientNotCreated"){
@@ -291,15 +284,3 @@ function AddPatientComponent({setdisplayAddPatient,parms}: any) {
   );
 }
 
-function LoadingPage(){
-    return(
-        <div className="min-h-screen w-full bg-gradient-to-br from-blue-500 to-blue-400 flex justify-center p-4 text-white flex-col">
-            <div className="flex text-[40px] lg:text-[100px] mt-auto mb-auto flex-col justify-center self-center"> 
-                <div className="flex"><Loader2Icon className="animate-spin h-[40px] w-[40px] lg:h-[100px] lg:w-[100px] mt-auto mb-auto mr-[10px]"/> LOADING...</div>
-                
-                <div className="flex  text-[15px] lg:text-[25px] ml-auto mr-auto mt-[10px]">If Loading For More Than 30sec Contact Admin</div>
-            </div>
-            
-        </div>
-    )
-}

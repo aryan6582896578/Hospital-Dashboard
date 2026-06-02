@@ -29,7 +29,7 @@ export default function authroute(app){
         }else{
             console.log(username,password)
             const getUserinfo = await pool.query('SELECT * FROM userinfo WHERE username=$1',[`${username}`]);
-            console.log(getUserinfo.rows , "hii")
+            console.log(getUserinfo.rows[0].username , "logged in")
             if(getUserinfo.rows[0]){
                 if(password===getUserinfo.rows[0].password){
                     const tokenJwt = signJWT(username,getUserinfo.rows[0].role,getUserinfo.rows[0].displayname)

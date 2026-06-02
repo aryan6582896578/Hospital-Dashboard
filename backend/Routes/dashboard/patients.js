@@ -109,6 +109,80 @@ export default function Patientsroute(app){
         }
     
     })
+    router.get('/getpaitentprofile',checkJwt, async(req, res) => {
+        
+        if(req.validUser){
+            if(req.roleType==="admin"){
+                try {
+                    const patientprofile = await pool.query(`SELECT * FROM patients WHERE hospitalname=$1 AND patientid = $2`,[req.query.hospitalname,req.query.patientname])
+                    if(patientprofile.rows){
+                        res.json({patientProfile:patientprofile.rows})
+                    }else{
+                        res.json({status:"unableToGetPatientProfile"})
+                    } 
+                } catch (error) {
+                    res.json({status:"unableToGetPatientProfile"})
+                    console.log("error in getting patient profile admin")
+                } 
+            }else{
+                try {
+                    const hasAccess = await pool.query(`SELECT * FROM hospitalinfo WHERE name=$2 AND ($1 = ANY(doctorlist) OR $1 = ANY(nurselist))`,[req.username,req.query.hospitalname]);
+                    if(hasAccess.rowCount===1){
+                        try {
+                            const patientprofile = await pool.query(`SELECT * FROM patients WHERE hospitalname = $1 AND patientid = $2`,[req.query.hospitalname,req.query.patientname])
+                            if(patientprofile.rows){
+                                res.json({patientProfile:patientprofile.rows})
+                            }else{
+                                res.json({status:"unableToGetPatientProfile"})
+                            } 
+                        } catch (error) {
+                            res.json({status:"unableToGetPatientProfile"})
+                            console.log("error in getting patient profile",error)
+                        }
+                    }
+                } catch (error) {
+                    console.log("error in get patient profile",error)
+                }
+            }  
+        }else{
+            res.json({status:"invalidUser"})
+        }
+    
+    })
+    router.post('/editpatient/:patientid',checkJwt, async(req, res) => {
+        const patientid = req.params.patientid;
+        const { fullname, gender, age, dob, phonenumber, address, bloodgroup, allergies, chronicconditions, notes, emergencycontactname, emergencycontactnumber, hospitalname } = req.body;
+        const lastupdatedby = req.username;
+        if(req.validUser && hospitalname && fullname && patientid && req.roleType==="doctor" ){
+            try {
+                const hasAccess = await pool.query(`SELECT * FROM hospitalinfo WHERE name=$2 AND ($1 = ANY(doctorlist) OR $1 = ANY(nurselist))`,[req.username,hospitalname]);
+                if(hasAccess.rowCount===1){
+                    const validPatient = await pool.query( `SELECT 1 FROM patients WHERE patientid = $1`,[patientid]);
+                    if(validPatient.rowCount ===1){
+                        const updatePatient = await pool.query( `UPDATE patients SET fullname = $1, gender = $2, age = $3, dob = $4, phonenumber = $5, address = $6, bloodgroup = $7, allergies = $8, 
+                            chronicconditions = $9, notes = $10, emergencycontactname = $11, emergencycontactnumber = $12, lastupdatedby = $13,updated_at = CURRENT_TIMESTAMP WHERE patientid = $14 RETURNING *`, 
+                            [ fullname || null, gender || null, age || null, dob || null, phonenumber || null, address || null, bloodgroup || null, allergies || null, 
+                                chronicconditions || null, notes || null, emergencycontactname || null, emergencycontactnumber || null, lastupdatedby, patientid ] );
+                        if(updatePatient.rowCount===1){
+                            res.json({status:"patientUpdated"})
+                        }else{
+                            res.json({status:"unableToEditPatient"})
+                        }
+                    }else{
+                        res.json({status:"invalidPatient"})
+                    }
+                }else{
+                    res.json({status:"invalidUser"})
+                }
+            } catch (error) {
+                onsole.log("error in add patient",error)
+            }
+
+        
+        }else{
+            res.json({status:"invalidRequest"})
+        }
+    })
 
     return router;
 }
