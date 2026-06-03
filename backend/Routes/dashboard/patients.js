@@ -189,19 +189,19 @@ export default function Patientsroute(app){
 
     router.post('/addconsultation/:patientid', checkJwt, async (req, res) => {
         const patientid = req.params.patientid;
-        const {hospitalname,pastmedicalhistory,personalhistory,medications} = req.body;
+        const {hospitalname,pastmedicalhistory,personalhistory,medications,paymentamount,paymentstatus,paymentnote} = req.body;
         const consultationid = crypto.randomUUID();
 
         if (req.validUser && req.roleType === "doctor" && patientid && hospitalname) {
             const client = await pool.connect();
             try {
-                const hasAccess = await client.query(`SELECT * FROM hospitalinfo WHERE name = $2 AND ($1 = ANY(doctorlist) OR $1 = ANY(nurselist))`,[req.username, hospitalname]);
+                const hasAccess = await client.query(`SELECT * FROM hospitalinfo WHERE name = $2 AND $1 = ANY(doctorlist)`,[req.username, hospitalname]);
                 if (hasAccess.rowCount !== 1) {
                     return res.json({ status: "invalidUser" });
                 }
                     await client.query("BEGIN");
-                    await client.query( `INSERT INTO consultations(consultationid,patientid,hospitalname,pastmedicalhistory,personalhistory) VALUES($1,$2,$3,$4,$5)`,
-                    [consultationid,patientid,hospitalname,pastmedicalhistory,personalhistory]
+                    await client.query( `INSERT INTO consultations(consultationid,patientid,hospitalname,pastmedicalhistory,personalhistory,paymentamount,paymentstatus,paymentnote,doctorname,paymentupdatedby) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+                    [consultationid,patientid,hospitalname,pastmedicalhistory,personalhistory,paymentamount,paymentstatus,paymentnote,req.username,req.username]
                 );
 
                 if (Array.isArray(medications)) {
@@ -328,6 +328,31 @@ export default function Patientsroute(app){
         }
     
     })
+    router.post('/updatepaymentconsultation', checkJwt, async (req, res) => {
+        const {paymentamount,paymentstatus,paymentnote,hospitalname,consultationid,patientid} = req.body;
+
+        if (req.validUser && (req.roleType === "doctor" || req.roleType === "nurse") && patientid && hospitalname) {
+            try {
+                const hasAccess = await pool.query(`SELECT * FROM hospitalinfo WHERE name = $2 AND ($1 = ANY(doctorlist) OR $1 = ANY(nurselist))`,[req.username, hospitalname]);
+                if (hasAccess.rowCount !== 1) {
+                    return res.json({ status: "invalidUser" });
+                }
+                const updatePayment = await pool.query(`UPDATE consultations SET paymentamount=$1,paymentstatus=$2,paymentnote=$3,paymentupdatedat=CURRENT_TIMESTAMP,paymentupdatedby=$4 WHERE consultationid=$5  `,
+                    [paymentamount,paymentstatus,paymentnote,req.username,consultationid]
+                )
+                if(updatePayment.rowCount===1){
+                    return res.json({status:"updatedPayment"})
+                }
+
+            } catch (error) {
+                console.log(error);
+                
+                return res.json({status: "updatedNotPayment"});
+            }
+        }else{            
+            return res.json({status:"invalidRequest"})
+        }
+    });
 
     return router;
 }

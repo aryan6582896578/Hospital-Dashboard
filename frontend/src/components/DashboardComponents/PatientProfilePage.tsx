@@ -1,7 +1,7 @@
 import {useContext, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import axios from "axios";
-import { AlertCircle, EditIcon, Plus, SaveIcon, User, XIcon} from "lucide-react";
+import { AlertCircle, EditIcon, Plus, Save, SaveIcon, User, XIcon} from "lucide-react";
 import HospitalSidebarComponent from "./HospitalSidebarComponent";
 import { UserRoleContext } from "../AuthPage";
 import ConsultationPdfButton from "./ConsultationPdfButton";
@@ -277,10 +277,10 @@ function PatientProfileComponent({parms,patientProfileData,getPatientProfile}:an
 function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultation,parms,patientProfileData,getPatientConsultation}: any) {
     type MedicationType = {medicinename: string;duration: string;dosage: string;timing: string[];notes: string;};
 
-    type ConsultationDataType = {pastmedicalhistory: string;personalhistory: string;hospitalname: string;medications: MedicationType[];};
+    type ConsultationDataType = {pastmedicalhistory: string;personalhistory: string;hospitalname: string; medications: MedicationType[]; paymentamount:number,paymentstatus:string,paymentnote:string};
 
     const [consultationData, setconsultationData] =useState<ConsultationDataType>({pastmedicalhistory: "",personalhistory: "",hospitalname: parms.hospitalname,
-        medications: [{medicinename: "",duration:"",dosage:"",timing: [],notes: "",},]
+        medications: [{medicinename: "",duration:"",dosage:"",timing: [],notes: "",}],paymentamount:0.0,paymentstatus:"notpaid",paymentnote:""
     });
 
     const [errorMessage, seterrorMessage] = useState<{meds:string,status:string}>({meds:"",status:""});
@@ -363,12 +363,7 @@ function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultat
                         <div className="text-[30px]">Medications</div>
                         {errorMessage.meds && (<p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errorMessage.meds}</p>)}
                     </div>
-                    <button type="button" onClick={()=>{
-                        addMedication()
-                    }} className="h-[45px] px-[20px] rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white cursor-pointer flex items-center gap-[8px]">
-                        <Plus className="w-[18px] h-[18px]" />
-                        Add Medicine
-                    </button>
+
                 </div>
 
                 <div className="flex flex-col gap-[20px]">
@@ -449,6 +444,42 @@ function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultat
                             </div>
                         );
                     })}
+                    
+                </div>
+                <div className="mt-[10px]">
+                    <button type="button" onClick={()=>{
+                        addMedication()
+                    }} className="h-[45px] px-[20px] rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white cursor-pointer flex items-center gap-[8px]">
+                        <Plus className="w-[18px] h-[18px]" />
+                        Add Medicine
+                    </button>
+                </div>
+                <div className="bg-white p-[20px] mt-[20px] rounded-[10px]">
+                    <div className="text-[30px] mb-[10px]">Payment</div>
+                    <div className="flex">
+                        <div className="text-[#64748b] mr-[20px]">
+                            Amount
+                            <input type="number" step="50" maxLength={10} className={`resize-none border break-all w-full  rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative text-[#64748b] outline-0 border-[#dbe4ee] p-[10px]`} onChange={(e:any)=>{
+                                setconsultationData({...consultationData,paymentamount:e.target.value});
+                                }} value={consultationData.paymentamount} placeholder="Enter Amount To Bill... "/>
+                        </div>
+                        <div className="text-[#64748b] mr-[20px]">
+                            Payment Status
+                            <select value={consultationData.paymentstatus} onChange={(e) =>
+                                setconsultationData({...consultationData,paymentstatus: e.target.value})
+                                }
+                                className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] outline-none cursor-pointer ">
+                                <option value="notpaid">Not Paid</option>
+                                <option value="paid">Paid</option>
+                            </select>
+                        </div>
+                        <div className="text-[#64748b]">
+                            Amount
+                            <input type="text" maxLength={10} className={`resize-none border break-all w-full  rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative text-[#64748b] outline-0 border-[#dbe4ee] p-[10px]`} onChange={(e:any)=>{
+                                setconsultationData({...consultationData,paymentnote:e.target.value});
+                                }} value={consultationData.paymentnote} placeholder="Payment Note..."/>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div className="flex justify-center gap-4">
@@ -475,19 +506,102 @@ function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultat
 }
 
 function PatientConsultationComponent({consultationData = [],}: {consultationData?: any[]}){
+    
     return(
         <div className="">
             {consultationData.map((x:any,y:any)=>{
                 return (
-                <div className="bg-white m-[20px] flex cursor-pointer hover:bg-blue-100  rounded-[10px] flex-col p-[20px]" key={x.consultationid}>
-                    <div className="text-[20px]">Consultation {y+1}</div>
-                    <div className="text-[#64748b] text-xs mb-[5px] mt-[10px]">Patient Name: {x.patient.fullname}</div> 
-                    <div className="text-[#64748b] text-xs"> Date: {new Date(x.createdat).toLocaleString("en-IN", {timeZone: "Asia/Kolkata",day: "2-digit",month: "short",year: "numeric",hour: "numeric",minute: "2-digit",hour12: true})}</div>
-                    <div className="cursor-pointer">
-                        <ConsultationPdfButton consultation={x}/>
-                    </div>
-                </div>)
+                    <PatientConsultationDataComponent x={x} y={y}/>
+                )
             })}
         </div>
+    )
+}
+function PatientConsultationDataComponent({x,y}:any){
+    const parms= useParams();
+    const[paymentData,setpaymentData]=useState<{paymentamount:number,paymentstatus:string,paymentnote:string,hospitalname:string,consultationid:string,patientid:string}>({paymentamount:x.paymentamount,paymentstatus:x.paymentstatus,paymentnote:x.paymentnote,hospitalname:parms.hospitalname,consultationid:x.consultationid,patientid:parms.hospitalname})
+    const [isDisabled,setisDisabled]=useState<boolean>(true);
+    
+    async function UpdatePaymentPost(){
+        const updatePayment = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/patient/updatepaymentconsultation`,paymentData,{ withCredentials: true });
+        console.log(updatePayment.data.status)
+        if(updatePayment.data.status==="updatedPayment"){
+            setisDisabled(true)
+        }else if(updatePayment.data.status==="updatedNotPayment"){
+            console.log("contact admin ")
+        }
+    }
+    return(
+                <div className="bg-white m-[20px] flex cursor-pointer hover:bg-blue-100  rounded-[10px] flex-col p-[20px]" key={x.consultationid}>
+                    <div className="text-[20px]">Consultation {y+1}</div>
+                    <div className="flex justify-between">
+                        <div className="">
+                            <div className="text-[#64748b] text-xs mb-[5px] mt-[10px]">Patient Name: {x.patient.fullname}</div>
+                            <div className="text-[#64748b] text-xs mb-[5px] ">Doctor Name: {x.doctorname}</div>  
+                            <div className="text-[#64748b] text-xs mb-[5px] "> Date: {new Date(x.createdat).toLocaleString("en-IN", {timeZone: "Asia/Kolkata",day: "2-digit",month: "short",year: "numeric",hour: "numeric",minute: "2-digit",hour12: true})}</div>
+                        </div>
+                        <div className="cursor-pointer">
+                            <ConsultationPdfButton consultation={x}/>
+                        </div>
+                    </div>
+                    <div className="flex justify-between">
+                        <div className="text-[#64748b] text-xs flex gap-2 mt-auto mb-auto">
+                            <div className="">Amount: {x.paymentamount}</div>
+                            <div className="">Status: {x.paymentstatus}</div>
+                            {x.paymentnote && <div className="">Amount: {x.paymentnote}</div>}
+                            <div className="">Payment Updated By: {x.paymentupdatedby}</div>
+                        </div>
+                        {isDisabled? <div className="">
+                            <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-green-200 transition-all flex items-center gap-2 text-[#1e293b] cursor-pointer font-semibold" onClick={()=>{
+                                setisDisabled(false)
+                            }}>
+                                <EditIcon className="w-4 h-4" /> Edit Payment
+                            </button>
+                        </div>
+                        :
+                        <div className="flex gap-2">
+                            <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] hover:bg-[#394d6e] transition-all flex items-center gap-2 bg-[#1e293b] text-white whitespace-nowrap cursor-pointer font-semibold" onClick={()=>{
+                                UpdatePaymentPost()
+                            }}>
+                                <SaveIcon className="w-4 h-4" /> Save
+                            </button>
+                            <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-red-200 transition-all flex items-center gap-2 text-[#1e293b] cursor-pointer font-semibold" onClick={()=>{
+                                setisDisabled(true)
+                            }}>
+                                Cancel
+                            </button>
+                        </div>}
+
+                    </div>
+                    {!isDisabled && 
+                        <div className="bg-white p-[20px] mt-[20px] rounded-[10px]">
+                            <div className="text-[30px] mb-[10px]">Payment</div>
+                            <div className="flex">
+                                <div className="text-[#64748b] mr-[20px]">
+                                    Amount
+                                    <input type="number" step="50" maxLength={10} className={`resize-none border break-all w-full  rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative text-[#64748b] outline-0 border-[#dbe4ee] p-[10px]`} onChange={(e:any)=>{
+                                        setpaymentData({...paymentData,paymentamount:e.target.value});
+                                        }} value={paymentData.paymentamount} placeholder="Enter Amount To Bill... "/>
+                                </div>
+                                <div className="text-[#64748b] mr-[20px]">
+                                    Payment Status
+                                    <select value={paymentData.paymentstatus} onChange={(e) =>
+                                        setpaymentData({...paymentData,paymentstatus: e.target.value})
+                                        }
+                                        className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] outline-none cursor-pointer ">
+                                        <option value="notpaid">Not Paid</option>
+                                        <option value="paid">Paid</option>
+                                    </select>
+                                </div>
+                                <div className="text-[#64748b]">
+                                    Amount
+                                    <input type="text" maxLength={10} className={`resize-none border break-all w-full  rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative text-[#64748b] outline-0 border-[#dbe4ee] p-[10px]`} onChange={(e:any)=>{
+                                        setpaymentData({...paymentData,paymentnote:e.target.value});
+                                        }} value={paymentData.paymentnote} placeholder="Payment Note..."/>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
     )
 }

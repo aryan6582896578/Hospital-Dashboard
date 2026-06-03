@@ -74,6 +74,12 @@ export async function runDb(){
                 hospitalname TEXT NOT NULL,
                 pastmedicalhistory TEXT DEFAULT '',
                 personalhistory TEXT DEFAULT '',
+                paymentamount NUMERIC(10,2),
+                paymentstatus VARCHAR(15),
+                paymentnote TEXT,
+                paymentupdatedat TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                paymentupdatedby varchar(50) NOT NULL,
+                doctorname varchar(50) NOT NULL,
                 createdat TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                 updatedat TIMESTAMPTZ NOT NULL DEFAULT NOW()
             );
