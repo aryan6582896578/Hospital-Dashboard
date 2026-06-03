@@ -69,6 +69,7 @@ export default function Patientsroute(app){
             res.json({status:"invalidUser"})
         }
     })
+
     router.get('/getpaitentlist',checkJwt, async(req, res) => {
 
         if(req.validUser){
@@ -109,12 +110,13 @@ export default function Patientsroute(app){
         }
     
     })
+
     router.get('/getpaitentprofile',checkJwt, async(req, res) => {
         
         if(req.validUser){
             if(req.roleType==="admin"){
                 try {
-                    const patientprofile = await pool.query(`SELECT * FROM patients WHERE hospitalname=$1 AND patientid = $2`,[req.query.hospitalname,req.query.patientname])
+                    const patientprofile = await pool.query(`SELECT * FROM patients WHERE hospitalname=$1 AND patientid = $2`,[req.query.hospitalname,req.query.patientid])
                     if(patientprofile.rows){
                         res.json({patientProfile:patientprofile.rows})
                     }else{
@@ -129,7 +131,7 @@ export default function Patientsroute(app){
                     const hasAccess = await pool.query(`SELECT * FROM hospitalinfo WHERE name=$2 AND ($1 = ANY(doctorlist) OR $1 = ANY(nurselist))`,[req.username,req.query.hospitalname]);
                     if(hasAccess.rowCount===1){
                         try {
-                            const patientprofile = await pool.query(`SELECT * FROM patients WHERE hospitalname = $1 AND patientid = $2`,[req.query.hospitalname,req.query.patientname])
+                            const patientprofile = await pool.query(`SELECT * FROM patients WHERE hospitalname = $1 AND patientid = $2`,[req.query.hospitalname,req.query.patientid])
                             if(patientprofile.rows){
                                 res.json({patientProfile:patientprofile.rows})
                             }else{
@@ -149,6 +151,7 @@ export default function Patientsroute(app){
         }
     
     })
+
     router.post('/editpatient/:patientid',checkJwt, async(req, res) => {
         const patientid = req.params.patientid;
         const { fullname, gender, age, dob, phonenumber, address, bloodgroup, allergies, chronicconditions, notes, emergencycontactname, emergencycontactnumber, hospitalname } = req.body;
@@ -182,6 +185,148 @@ export default function Patientsroute(app){
         }else{
             res.json({status:"invalidRequest"})
         }
+    })
+
+    router.post('/addconsultation/:patientid', checkJwt, async (req, res) => {
+        const patientid = req.params.patientid;
+        const {hospitalname,pastmedicalhistory,personalhistory,medications} = req.body;
+        const consultationid = crypto.randomUUID();
+
+        if (req.validUser && req.roleType === "doctor" && patientid && hospitalname) {
+            const client = await pool.connect();
+            try {
+                const hasAccess = await client.query(`SELECT * FROM hospitalinfo WHERE name = $2 AND ($1 = ANY(doctorlist) OR $1 = ANY(nurselist))`,[req.username, hospitalname]);
+                if (hasAccess.rowCount !== 1) {
+                    return res.json({ status: "invalidUser" });
+                }
+                    await client.query("BEGIN");
+                    await client.query( `INSERT INTO consultations(consultationid,patientid,hospitalname,pastmedicalhistory,personalhistory) VALUES($1,$2,$3,$4,$5)`,
+                    [consultationid,patientid,hospitalname,pastmedicalhistory,personalhistory]
+                );
+
+                if (Array.isArray(medications)) {
+                    for (const medication of medications) {
+                        await client.query(`INSERT INTO consultation_medications(medicationid,consultationid,medicinename,duration,dosage,timing,notes) VALUES($1,$2,$3,$4,$5,$6,$7)`,
+                            [crypto.randomUUID(),consultationid,medication.medicinename,medication.duration,medication.dosage,medication.timing,medication.notes]);
+                    }
+                }
+
+                await client.query("COMMIT");
+
+                return res.json({status: "consultationCreated"});
+            } catch (error) {
+                try {
+                    await client.query("ROLLBACK");
+                } catch {}
+
+                console.log("error in creating consultation", error);
+
+                return res.json({status: "consultationNotCreated"});
+            } finally {
+                client.release();
+            }
+        }else{
+            return res.json({status:"invalidRequest"})
+        }
+    });
+    router.get('/getpaitentconsultation',checkJwt, async(req, res) => {
+
+        if(req.validUser){
+            if(req.roleType==="admin"){
+                try {
+                    const consultations = await pool.query(
+                        `SELECT c.*,
+                            COALESCE(
+                                json_agg(
+                                    json_build_object('medicationid', m.medicationid,'medicinename', m.medicinename,'duration', m.duration,'dosage', m.dosage,'timing', m.timing,'notes', m.notes)) 
+                                    FILTER (WHERE m.medicationid IS NOT NULL),'[]') AS medications
+                            FROM consultations c
+                            LEFT JOIN consultation_medications m
+                                ON c.consultationid = m.consultationid
+                            WHERE c.hospitalname = $1
+                            AND c.patientid = $2
+                            GROUP BY c.consultationid
+                            ORDER BY c.createdat DESC`,
+                            [req.query.hospitalname, req.query.patientid]
+                        );
+
+                    res.json({consultationDataPatient: consultations.rows});
+                } catch (error) {
+                    res.json({status:"unableToGetConsultation"})
+                    console.log("error in getting patient consultation admin")
+                } 
+            }else{
+                try {
+                    const hasAccess = await pool.query(`SELECT * FROM hospitalinfo WHERE name=$2 AND ($1 = ANY(doctorlist) OR $1 = ANY(nurselist))`,[req.username,req.query.hospitalname]);
+                    if(hasAccess.rowCount===1){
+                        try {
+                            const consultations = await pool.query(
+                                `SELECT c.*,
+
+                                        json_build_object(
+                                            'patientid', p.patientid,
+                                            'fullname', p.fullname,
+                                            'gender', p.gender,
+                                            'age', p.age,
+                                            'dob', p.dob,
+                                            'phonenumber', p.phonenumber,
+                                            'address', p.address,
+                                            'bloodgroup', p.bloodgroup,
+                                            'allergies', p.allergies,
+                                            'chronicconditions', p.chronicconditions,
+                                            'notes', p.notes,
+                                            'emergencycontactname', p.emergencycontactname,
+                                            'emergencycontactnumber', p.emergencycontactnumber
+                                        ) AS patient,
+
+                                        COALESCE(
+                                            json_agg(
+                                                json_build_object(
+                                                    'medicationid', m.medicationid,
+                                                    'medicinename', m.medicinename,
+                                                    'duration', m.duration,
+                                                    'dosage', m.dosage,
+                                                    'timing', m.timing,
+                                                    'notes', m.notes
+                                                )
+                                            ) FILTER (WHERE m.medicationid IS NOT NULL),
+                                            '[]'
+                                        ) AS medications
+
+                                    FROM consultations c
+
+                                    INNER JOIN patients p
+                                        ON c.patientid = p.patientid
+
+                                    LEFT JOIN consultation_medications m
+                                        ON c.consultationid = m.consultationid
+
+                                    WHERE c.hospitalname = $1
+                                    AND c.patientid = $2
+
+                                    GROUP BY
+                                        c.consultationid,
+                                        p.patientid
+
+                                    ORDER BY c.createdat DESC;`,
+                                [req.query.hospitalname, req.query.patientid]
+                            );
+                            
+                            
+                            res.json({consultationDataPatient: consultations.rows});
+                        } catch (error) {
+                            res.json({status:"unableToGetConsultation"})
+                            console.log("error in getting patient consultation",error)
+                        }
+                    }
+                } catch (error) {
+                    console.log("error in get patient consultation",error)
+                }
+            }  
+        }else{
+            res.json({status:"invalidUser"})
+        }
+    
     })
 
     return router;

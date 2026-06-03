@@ -1,25 +1,36 @@
 import {useContext, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import axios from "axios";
-import { AlertCircle, EditIcon, Plus, SaveIcon, User, X, XIcon} from "lucide-react";
+import { AlertCircle, EditIcon, Plus, SaveIcon, User, XIcon} from "lucide-react";
 import HospitalSidebarComponent from "./HospitalSidebarComponent";
 import { UserRoleContext } from "../AuthPage";
+import ConsultationPdfButton from "./ConsultationPdfButton";
 
 export default function PatientProfilePage(){
    const[displayAddConsultation,setdisplayAddConsultation]=useState<boolean>(false);
     const[patientProfileData,setpatientProfileData]=useState<any[]>([]);
+    const[consultationData,setconsultationData]=useState<any[]>([]);
     const parms = useParams();
 
 
     async function getPatientProfile(){
-        const patientData = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getpaitentprofile`,{params:{hospitalname:parms.hospitalname,patientname:parms.patientname},withCredentials: true})
+        const patientData = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getpaitentprofile`,{params:{hospitalname:parms.hospitalname,patientid:parms.patientid},withCredentials: true})
         if(patientData.data.patientProfile){
             setpatientProfileData(patientData.data.patientProfile[0])
+        }
+    }
+
+    async function getPatientConsultation(){
+        const consultationData = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getpaitentconsultation`,{params:{hospitalname:parms.hospitalname,patientid:parms.patientid},withCredentials: true})
+        if(consultationData.data.consultationDataPatient){
+            setconsultationData(consultationData.data.consultationDataPatient)
+            console.log(consultationData.data.consultationDataPatient)
         }
     }
     
     useEffect(() => {
         getPatientProfile()
+        getPatientConsultation()
     }, [])
     
     return(
@@ -38,14 +49,11 @@ export default function PatientProfilePage(){
                     Add Consultation
                     </button>
                 </div>
-                {displayAddConsultation && <AddConsultationComponent  parms={parms} patientProfileData={patientProfileData} setdisplayAddConsultation={setdisplayAddConsultation} />}
+                {displayAddConsultation && <AddConsultationComponent  parms={parms} patientProfileData={patientProfileData} setdisplayAddConsultation={setdisplayAddConsultation} displayAddConsultation={displayAddConsultation} getPatientConsultation={getPatientConsultation}/>}
                 <PatientProfileComponent parms={parms} patientProfileData={patientProfileData} getPatientProfile={getPatientProfile} setdisplayAddConsultation={setdisplayAddConsultation}  />
-                
+                <PatientConsultationComponent consultationData={consultationData} />
             </div>
-            
-
-        </div>
-            
+        </div> 
     )
 
 }
@@ -76,7 +84,7 @@ function PatientProfileComponent({parms,patientProfileData,getPatientProfile}:an
     }, [patientProfileData]);
 
     async function UpdatePatientPost() {
-        const updatePatient = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/patient/editpatient/${parms.patientname}`,patientData,{ withCredentials: true });
+        const updatePatient = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/patient/editpatient/${parms.patientid}`,patientData,{ withCredentials: true });
         if(updatePatient.data.status==="patientUpdated"){
             getPatientProfile()
             setisDisabled(true)
@@ -266,7 +274,7 @@ function PatientProfileComponent({parms,patientProfileData,getPatientProfile}:an
 }
 
 
-function AddConsultationComponent({setdisplayAddConsultation,parms,patientProfileData}: any) {
+function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultation,parms,patientProfileData,getPatientConsultation}: any) {
     type MedicationType = {medicinename: string;duration: string;dosage: string;timing: string[];notes: string;};
 
     type ConsultationDataType = {pastmedicalhistory: string;personalhistory: string;hospitalname: string;medications: MedicationType[];};
@@ -275,45 +283,37 @@ function AddConsultationComponent({setdisplayAddConsultation,parms,patientProfil
         medications: [{medicinename: "",duration:"",dosage:"",timing: [],notes: "",},]
     });
 
-    const [errorMessage, seterrorMessage] = useState<{fullname: string;}>({fullname: ""});
+    const [errorMessage, seterrorMessage] = useState<{meds:string,status:string}>({meds:"",status:""});
 
     const timingOptions = ["Before Breakfast","After Breakfast","Before Lunch","After Lunch","Before Dinner","After Dinner","Before Snacks","After Snacks"];
 
-    async function AddaddConsultationPost() {
+    async function AddConsultationPost() {
         try {
-            console.log(consultationData)
-            // const addConsultation = await axios.post(
-            //     `${import.meta.env.VITE_BACKEND_URL}/patient/addconsultation/${parms.patientname}`,
-            //     consultationData,
-            //     {
-            //         withCredentials: true,
-            //     }
-            // );
+            const addConsultation = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/patient/addconsultation/${parms.patientid}`,consultationData,{withCredentials: true});
+            if(addConsultation.data.status === "consultationCreated"){
+                getPatientConsultation()
+                setdisplayAddConsultation(false)
+            }else if(addConsultation.data.status==="consultationNotCreated"){
+                seterrorMessage({...errorMessage,status:"Contact Admin Server Error"})
+            }
 
-            // console.log(addConsultation.data.status);
         } catch (error) {
             console.log(error);
         }
     }
 
     function addMedication() {
-        setconsultationData((prev) => 
-            ({...prev,medications: [...prev.medications,{medicinename: "",duration:"",dosage:"",timing: [],notes: ""}]})
-        );
+        setconsultationData((prev) => ({...prev,medications: [...prev.medications,{medicinename: "",duration:"",dosage:"",timing: [],notes: ""}]}));
     }
 
     function removeMedication(index: number) {
-        setconsultationData((prev) => 
-            ({...prev, medications: prev.medications.filter((_, i) => i !== index),})
-        );
+        setconsultationData((prev) => ({...prev, medications: prev.medications.filter((_, i) => i !== index),}));
     }
 
     function updateMedication(index: number,field: keyof MedicationType,value: string | string[]) {
         setconsultationData((prev) => {
             const updated = [...prev.medications];
-
             updated[index] = {...updated[index],[field]: value};
-
             return {...prev,medications: updated};
         });
     }
@@ -321,11 +321,8 @@ function AddConsultationComponent({setdisplayAddConsultation,parms,patientProfil
     function toggleTiming(index: number, value: string) {
         setconsultationData((prev) => {
             const updated = [...prev.medications];
-
             const currentTiming = updated[index].timing;
-
             updated[index] = {...updated[index],timing: currentTiming.includes(value)? currentTiming.filter((x) => x !== value): [...currentTiming, value]};
-
             return {...prev,medications: updated};
         });
     }
@@ -333,7 +330,7 @@ function AddConsultationComponent({setdisplayAddConsultation,parms,patientProfil
 
   return (
     <div className="bg-[#f6f8fb] w-full flex flex-col min-h-fit h-fit overflow-hidden ">
-        <div className="flex-1 min-h-0 flex flex-col bg-blue-50 rounded-3xl border border-[#e8edf2] shadow-xs p-5 sm:p-8 m-[10px] overflow-y-auto h-fit">
+        <div className={`flex-1 min-h-0 flex flex-col ${errorMessage.status?"bg-red-300":"bg-blue-50"} rounded-3xl border border-[#e8edf2] shadow-xs p-5 sm:p-8 m-[10px] overflow-y-auto h-fit`}>
             <div className="text-center">
                 <div className="text-[30px]">Consultation</div>
                 <div className="select-none flex flex-col mr-[10px] min-w-[300px]">
@@ -341,6 +338,7 @@ function AddConsultationComponent({setdisplayAddConsultation,parms,patientProfil
                 </div>
             </div>
             <div className="">
+                {errorMessage.status && (<p className="text-[30px] p-[10px] rounded-[10px] font-semibold bg-white text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-5 h-5 " />{errorMessage.status}</p>)}
                 <div className="text-[30px] mt-[20px]">Patient History</div>
                 <div className="select-none flex mr-[10px] min-w-[300px] gap-3">
                     <div className="text-[#64748b] text-m mb-2 ml-[1px] w-full">
@@ -355,11 +353,16 @@ function AddConsultationComponent({setdisplayAddConsultation,parms,patientProfil
                             setconsultationData({...consultationData,personalhistory:e.target.value});
                             }} value={consultationData.personalhistory} placeholder="Patients Personal History..." />
                     </div>
+                    
                 </div>
+                
             </div>
-            <div className="mt-[30px]">
+            <div className="">
                 <div className="flex items-center justify-between mb-[15px]">
-                    <div className="text-[30px]">Medications</div>
+                    <div className="">
+                        <div className="text-[30px]">Medications</div>
+                        {errorMessage.meds && (<p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errorMessage.meds}</p>)}
+                    </div>
                     <button type="button" onClick={()=>{
                         addMedication()
                     }} className="h-[45px] px-[20px] rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white cursor-pointer flex items-center gap-[8px]">
@@ -389,6 +392,7 @@ function AddConsultationComponent({setdisplayAddConsultation,parms,patientProfil
 
                                     <input type="text" placeholder="Enter medicine name..." value={med.medicinename}
                                         onChange={(e) => {
+                                            seterrorMessage({...errorMessage,meds:""})
                                             updateMedication(index,"medicinename",e.target.value);
                                         }}
                                         className="border w-full h-[50px] rounded-[10px] bg-white text-[#64748b] outline-0 border-[#dbe4ee] p-[10px]"/>
@@ -447,14 +451,43 @@ function AddConsultationComponent({setdisplayAddConsultation,parms,patientProfil
                     })}
                 </div>
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-4">
                 <button onClick={()=>{
-                    AddaddConsultationPost()
+                    if(consultationData.medications[0].medicinename){
+                        AddConsultationPost();
+                    }else{
+                        seterrorMessage({...errorMessage,meds:"Enter Atleast one Medicine"})
+                    }
                 }} className="h-10 mt-[20px] px-4 rounded-[10px] border border-[#dbe4ee] hover:bg-[#394d6e] transition-all flex items-center gap-2 bg-[#1e293b] text-white whitespace-nowrap cursor-pointer font-semibold">
                     <SaveIcon className="w-4 h-4" /> Save
+                </button>
+                {displayAddConsultation &&
+                    <button className=" h-10 mt-[20px] px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-red-200 transition-all flex items-center gap-2 text-[#1e293b] cursor-pointer font-semibold" onClick={()=>{
+                            setdisplayAddConsultation(false)
+                        }}>
+                            Cancel
                     </button>
+                }
             </div>
         </div>
     </div>
   );
+}
+
+function PatientConsultationComponent({consultationData = [],}: {consultationData?: any[]}){
+    return(
+        <div className="">
+            {consultationData.map((x:any,y:any)=>{
+                return (
+                <div className="bg-white m-[20px] flex cursor-pointer hover:bg-blue-100  rounded-[10px] flex-col p-[20px]" key={x.consultationid}>
+                    <div className="text-[20px]">Consultation {y+1}</div>
+                    <div className="text-[#64748b] text-xs mb-[5px] mt-[10px]">Patient Name: {x.patient.fullname}</div> 
+                    <div className="text-[#64748b] text-xs"> Date: {new Date(x.createdat).toLocaleString("en-IN", {timeZone: "Asia/Kolkata",day: "2-digit",month: "short",year: "numeric",hour: "numeric",minute: "2-digit",hour12: true})}</div>
+                    <div className="cursor-pointer">
+                        <ConsultationPdfButton consultation={x}/>
+                    </div>
+                </div>)
+            })}
+        </div>
+    )
 }

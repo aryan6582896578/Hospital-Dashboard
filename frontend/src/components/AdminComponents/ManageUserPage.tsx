@@ -148,7 +148,7 @@ export function ManageUserPage() {
             {isEmptySearch?
                 <div className="flex flex-col mt-[50px]">
                     <div className="bg-blue-400 w-fit p-[20px] rounded-full self-center mb-[20px]"> <UserRoundXIcon className="h-[60px] w-[60px] stroke-[1.2] text-white" /></div>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col mb-[20px]">
                         <h1 className="font-bold text-[25px] self-center mb-[10px]">No User Found</h1>
                         <p className="text-[15px] text-[#64748b] ml-auto mr-auto w-[80%] text-center">There are no users with the given name</p>
                     </div>

@@ -25,13 +25,6 @@ const router = createBrowserRouter([
     path:"dashboard",
     Component: AuthPage,
     children: [
-      // {path:":hospitalname",
-      //   Component: HospitalPage,
-      //   children:[
-      //     {path:":user",
-      //     Component: AddPaitentPage}
-      //   ]
-      // },
       {path:":hospitalname",Component: HospitalPage},
       {path:":hospitalname/finance",Component: FinancePage},
       {path:":hospitalname/patients",Component:HospitalAuthPage,
@@ -41,7 +34,7 @@ const router = createBrowserRouter([
           Component: PaitentPage,
         },
         {
-          path: ":patientname",
+          path: ":patientid",
           Component: PatientProfilePage,
         },
       ],

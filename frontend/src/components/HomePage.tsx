@@ -17,6 +17,8 @@ export default function HomePage() {
     }else if(response.data.status==="invalidData"){
         console.log(cookieCheck)
         setusernameError("Invalid Username or Password")
+    }else if(response.data.status==="userInvalid"){
+      setusernameError("Invalid Username or Password")
     }
   }
 

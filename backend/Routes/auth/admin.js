@@ -27,13 +27,13 @@ export default function authroute(app){
         if(req.validUser){
             res.json({ status: "userValid" });
         }else{
-            console.log(username,password)
+            console.log("trying to login with username: ",username)
             const getUserinfo = await pool.query('SELECT * FROM userinfo WHERE username=$1',[`${username}`]);
-            console.log(getUserinfo.rows[0].username , "logged in")
+            
             if(getUserinfo.rows[0]){
                 if(password===getUserinfo.rows[0].password){
                     const tokenJwt = signJWT(username,getUserinfo.rows[0].role,getUserinfo.rows[0].displayname)
-
+                    console.log(getUserinfo.rows[0].username , "logged in")
                     res.cookie('tokenJwt',`${tokenJwt}`,{
                         httpOnly: true,
                         secure: process.env.ENV_TYPE === 'production',
@@ -45,6 +45,7 @@ export default function authroute(app){
                     })
                     res.json({ status: "userValid" });
                 }else{
+                    console.log("Failed - trying to login with username: ",username)
                     res.clearCookie('tokenJwt')
                     res.clearCookie('tokenJwtCheck')
                     res.json({ status: "userInvalid" });

@@ -73,8 +73,14 @@ export function ManageHospitalPage() {
                 </div>
             </div>
 
-            <div className="bg-[#f6f8fb] p-0 lg:p-[20px] flex w-full overflow-y-auto">
+            <div className="bg-[#f6f8fb] p-0 lg:p-[20px] flex w-full overflow-y-auto flex-col">
+                <div className="mb-8">
+                  <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1e293b]">
+                    Hospital Management
+                  </h1>
+                </div>
                 <div className="flex w-full p-0 lg:p-[20px] ">
+
                     <div className=" border border-[#e8edf2] rounded-[10px] shadow-sm  overflow-y-auto bg-white w-full pb-[20px]">
                         <div className="flex flex-col">
                             {filteredHospital?.map((x: any) => {
@@ -149,7 +155,7 @@ function HospitalListComponent({hospitalDataList,getHospitalList,}: {hospitalDat
       <div className="flex flex-col lg:flex-row justify-between p-5 gap-5 break-all">
         <div className="flex gap-4 ">
           <div className="min-w-12 h-12 rounded-full bg-blue-900 text-white flex items-center justify-center font-bold text-lg capitalize">{hospitalData.displayName?.[0]}</div>
-
+          {errorMessage && (<p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errorMessage}</p>)}
           <div className="">
             <h2 className="font-semibold text-[#1e293b] text-lg">{hospitalData.displayName}</h2>
             <p className="text-sm text-[#64748b]">@{hospitalData.name}</p>
@@ -199,7 +205,6 @@ function HospitalListComponent({hospitalDataList,getHospitalList,}: {hospitalDat
       </div>
 
       <div className="px-5 pt-[10px] overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-2">
-          {/* grid grid-cols-1 md:grid-cols-2 gap-3 */}
           {userList?.map((x: any) => {
             return (
               <div key={x.username} className="border border-[#dbe4ee] rounded-[10px] p-3 bg-[#f8fafc] flex items-center justify-between mb-[20px]">
