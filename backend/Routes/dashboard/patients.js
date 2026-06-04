@@ -390,5 +390,211 @@ export default function Patientsroute(app){
         }
     });
 
+    router.get('/getallconsultations',checkJwt, async(req, res) => {
+        if(req.validUser){
+            if(req.roleType==="admin"){
+                try {
+                    const consultations = await pool.query(
+                        `SELECT
+                            c.*,
+
+                            json_build_object(
+                                'patientid', p.patientid,
+                                'fullname', p.fullname,
+                                'gender', p.gender,
+                                'age', p.age,
+                                'dob', p.dob,
+                                'phonenumber', p.phonenumber,
+                                'address', p.address,
+                                'bloodgroup', p.bloodgroup,
+                                'allergies', p.allergies,
+                                'chronicconditions', p.chronicconditions,
+                                'notes', p.notes,
+                                'emergencycontactname', p.emergencycontactname,
+                                'emergencycontactnumber', p.emergencycontactnumber
+                            ) AS patient,
+
+                            COALESCE(
+                                json_agg(
+                                    json_build_object(
+                                        'medicationid', m.medicationid,
+                                        'medicinename', m.medicinename,
+                                        'duration', m.duration,
+                                        'dosage', m.dosage,
+                                        'timing', m.timing,
+                                        'notes', m.notes
+                                    )
+                                ) FILTER (WHERE m.medicationid IS NOT NULL),
+                                '[]'
+                            ) AS medications
+
+                        FROM consultations c
+
+                        INNER JOIN patients p
+                            ON c.patientid = p.patientid
+
+                        LEFT JOIN consultation_medications m
+                            ON c.consultationid = m.consultationid
+
+                        WHERE c.hospitalname = $1
+
+                        GROUP BY
+                            c.consultationid,
+                            p.patientid
+
+                        ORDER BY
+                            (c.paymentstatus = 'paid'),
+                            c.createdat DESC 
+                        LIMIT 10;`,
+                        [req.query.hospitalname]
+                    );
+
+                    res.json({consultationDataAll: consultations.rows});
+                } catch (error) {
+                    res.json({status:"unableToGetConsultation"})
+                    console.log("error in getting patient consultation admin")
+                } 
+            }else if(req.roleType==="doctor"){
+                try {
+                    const hasAccess = await pool.query(`SELECT * FROM hospitalinfo WHERE name=$2 AND $1 = ANY(doctorlist)`,[req.username,req.query.hospitalname]);
+                    if(hasAccess.rowCount===1){
+                        try {
+                        const consultations = await pool.query(
+                            `SELECT
+                                c.*,
+
+                                json_build_object(
+                                    'patientid', p.patientid,
+                                    'fullname', p.fullname,
+                                    'gender', p.gender,
+                                    'age', p.age,
+                                    'dob', p.dob,
+                                    'phonenumber', p.phonenumber,
+                                    'address', p.address,
+                                    'bloodgroup', p.bloodgroup,
+                                    'allergies', p.allergies,
+                                    'chronicconditions', p.chronicconditions,
+                                    'notes', p.notes,
+                                    'emergencycontactname', p.emergencycontactname,
+                                    'emergencycontactnumber', p.emergencycontactnumber
+                                ) AS patient,
+
+                                COALESCE(
+                                    json_agg(
+                                        json_build_object(
+                                            'medicationid', m.medicationid,
+                                            'medicinename', m.medicinename,
+                                            'duration', m.duration,
+                                            'dosage', m.dosage,
+                                            'timing', m.timing,
+                                            'notes', m.notes
+                                        )
+                                    ) FILTER (WHERE m.medicationid IS NOT NULL),
+                                    '[]'
+                                ) AS medications
+
+                            FROM consultations c
+
+                            INNER JOIN patients p
+                                ON c.patientid = p.patientid
+
+                            LEFT JOIN consultation_medications m
+                                ON c.consultationid = m.consultationid
+
+                            WHERE c.hospitalname = $1
+
+                            GROUP BY
+                                c.consultationid,
+                                p.patientid
+
+                            ORDER BY
+                                (c.paymentstatus = 'paid'),
+                                c.createdat DESC
+                                LIMIT 10;`,
+                            [req.query.hospitalname]
+                        );
+                            res.json({consultationDataAll: consultations.rows});
+                        } catch (error) {
+                            res.json({status:"unableToGetConsultation"})
+                            console.log("error in getting patient consultation",error)
+                        }
+                    }
+                } catch (error) {
+                    console.log("error in get patient consultation",error)
+                }
+            }else if(req.roleType==="nurse"){
+                try {
+                    const hasAccess = await pool.query(`SELECT * FROM hospitalinfo WHERE name=$2 AND $1 = ANY(nurselist)`,[req.username,req.query.hospitalname]);
+                    if(hasAccess.rowCount===1){
+                        try {
+                            const consultations = await pool.query(
+                                `SELECT
+                                    c.*,
+
+                                    json_build_object(
+                                        'patientid', p.patientid,
+                                        'fullname', p.fullname,
+                                        'gender', p.gender,
+                                        'age', p.age,
+                                        'dob', p.dob,
+                                        'phonenumber', p.phonenumber,
+                                        'address', p.address,
+                                        'bloodgroup', p.bloodgroup,
+                                        'allergies', p.allergies,
+                                        'chronicconditions', p.chronicconditions,
+                                        'notes', p.notes,
+                                        'emergencycontactname', p.emergencycontactname,
+                                        'emergencycontactnumber', p.emergencycontactnumber
+                                    ) AS patient,
+
+                                    COALESCE(
+                                        json_agg(
+                                            json_build_object(
+                                                'medicationid', m.medicationid,
+                                                'medicinename', m.medicinename,
+                                                'duration', m.duration,
+                                                'dosage', m.dosage,
+                                                'timing', m.timing,
+                                                'notes', m.notes
+                                            )
+                                        ) FILTER (WHERE m.medicationid IS NOT NULL),
+                                        '[]'
+                                    ) AS medications
+
+                                FROM consultations c
+
+                                INNER JOIN patients p
+                                    ON c.patientid = p.patientid
+
+                                LEFT JOIN consultation_medications m
+                                    ON c.consultationid = m.consultationid
+
+                                WHERE c.hospitalname = $1
+                                AND c.paymentstatus = 'notpaid'
+
+                                GROUP BY
+                                    c.consultationid,
+                                    p.patientid
+
+                                ORDER BY c.createdat DESC
+                                LIMIT 10;`,
+                                [req.query.hospitalname]
+                            );
+                            res.json({consultationDataAll: consultations.rows});
+                        } catch (error) {
+                            res.json({status:"unableToGetConsultation"})
+                            console.log("error in getting patient consultation",error)
+                        }
+                    }
+                } catch (error) {
+                    console.log("error in get patient consultation",error)
+                }
+            }  
+        }else{
+            res.json({status:"invalidUser"})
+        }
+    
+    })
+
     return router;
 }

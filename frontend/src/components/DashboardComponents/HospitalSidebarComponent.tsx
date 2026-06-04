@@ -43,11 +43,7 @@ export default function HospitalSidebarComponent(){
                         <Link to={`/dashboard/${parms.hospitalname}`}> <button className="flex  rounded-[5px] hover:bg-slate-100 cursor-pointer p-[10px] pl-[20px] pr-[20px]  lg:ml-auto lg:mr-auto  lg:mt-[10px] lg:min-w-[90%] min-w-fit"> <ClipboardClockIcon className="mr-[10px] text-blue-600"/>Appointments</button></Link>
                     </div>
                     <div className="flex lg:flex-col">
-                        {(userRole.roleType==="admin" || userRole.roleType==="doctor") && 
-                            <div className="flex lg:flex-col">
-                                <Link to={`/dashboard/${parms.hospitalname}/finance`}> <button className="flex  rounded-[5px] hover:bg-slate-100 cursor-pointer p-[10px] pl-[20px] pr-[20px]  lg:ml-auto lg:mr-auto  lg:mt-[10px] lg:min-w-[90%] min-w-fit"> <Wallet className="mr-[10px] text-blue-600"/>Finance </button></Link>
-                            </div>
-                        }
+                            <Link to={`/dashboard/${parms.hospitalname}/finance`}> <button className="flex  rounded-[5px] hover:bg-slate-100 cursor-pointer p-[10px] pl-[20px] pr-[20px]  lg:ml-auto lg:mr-auto  lg:mt-[10px] lg:min-w-[90%] min-w-fit"> <Wallet className="mr-[10px] text-blue-600"/>Finance </button></Link>
                             <Link to={`/dashboard/${parms.hospitalname}/patients`}> <button className="flex  rounded-[5px] hover:bg-slate-100 cursor-pointer p-[10px] pl-[20px] pr-[20px]  lg:ml-auto lg:mr-auto lg:mt-[10px] lg:min-w-[90%] min-w-fit"> <UserPenIcon className="mr-[10px] text-blue-600"/>Patients </button></Link>
                     </div>
                 </div>

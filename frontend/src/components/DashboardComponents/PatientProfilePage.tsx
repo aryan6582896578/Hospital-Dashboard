@@ -522,7 +522,7 @@ function PatientConsultationComponent({consultationData = [], getPatientConsulta
         <div className="">
             {consultationData.map((x:any,y:any)=>{
                 return (
-                    <PatientConsultationDataComponent x={x} y={y} getPatientConsultation={getPatientConsultation}/>
+                    <PatientConsultationDataComponent key={y} x={x} y={y} getPatientConsultation={getPatientConsultation}/>
                 )
             })}
         </div>
@@ -546,11 +546,16 @@ function PatientConsultationDataComponent({x,y,getPatientConsultation}:any){
         }
     }
     useEffect(() => {
-      getPatientConsultation()
-    }, [isDisabled])
+        setpaymentData(prev => ({
+            ...prev,
+            paymentamount: x.paymentamount,
+            paymentstatus: x.paymentstatus,
+            paymentnote: x.paymentnote,
+        }));
+    }, [x.paymentamount, x.paymentstatus, x.paymentnote]);
     
     return(
-                <div className="bg-white m-[20px] flex cursor-pointer hover:bg-blue-100  rounded-[10px] flex-col p-[20px]" key={x.consultationid}>
+                <div className="bg-white m-[20px] flex cursor-pointer hover:bg-blue-100  rounded-[10px] flex-col p-[20px]">
                     <div className="text-[20px]">Consultation {y+1}</div>
                     <div className="flex justify-between">
                         <div className="">

@@ -2,6 +2,7 @@ import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { useRef } from "react";
 import ConsultationPdfTemplate from "./ConsultationPdfTemplate.tsx";
+import { PrinterCheckIcon, PrinterIcon } from "lucide-react";
 
 export default function ConsultationPdfButton({
     consultation,
@@ -11,7 +12,7 @@ export default function ConsultationPdfButton({
     const downloadPdf = async () => {
         if (!pdfRef.current) return;
 
-        const canvas = await html2canvas(pdfRef.current, { scale: 1,useCORS: true,});
+        const canvas = await html2canvas(pdfRef.current, { scale: 1,useCORS: true,logging: false,});
 
         const imgData = canvas.toDataURL("image/jpeg", 1);
 
@@ -44,8 +45,8 @@ export default function ConsultationPdfButton({
 
     return (
         <>
-            <button onClick={downloadPdf} className="mt-[10px] bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">
-                Download PDF
+            <button onClick={downloadPdf} className="mt-[10px]  text-blue-400  hover:bg-blue-500 hover:text-white px-4 py-2 rounded cursor-pointer">
+                <PrinterIcon/>
             </button>
 
             <div className="fixed left-[-99999px] top-0">
