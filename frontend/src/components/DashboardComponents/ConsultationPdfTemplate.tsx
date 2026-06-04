@@ -17,32 +17,31 @@ const ConsultationPdfTemplate = forwardRef<
                 paddingBottom: "40px",
                 color: "black",
             }}
-        >
+        >   
             <div className="text-[28px] font-bold mb-[20px]">
                 Consultation Report
             </div>
 
-            <div className="mb-[20px]">
+            <div className="mb-[20px] flex gap-3">
                 <div>
                     <b>Name:</b>{" "}
-                    {consultation.patient.fullname}
+                    {consultation?.patient?.fullname}
                 </div>
 
                 <div>
                     <b>Age:</b>{" "}
-                    {consultation.patient.age}
+                    {consultation.patient?.age}
                 </div>
 
                 <div>
                     <b>Gender:</b>{" "}
-                    {consultation.patient.gender}
+                    {consultation.patient?.gender}
                 </div>
 
                 <div>
                     <b>Phone:</b>{" "}
                     {
-                        consultation.patient
-                            .phonenumber
+                        consultation.patient?.phonenumber
                     }
                 </div>
             </div>
@@ -61,25 +60,6 @@ const ConsultationPdfTemplate = forwardRef<
                     hour12: true,
                 })}
             </div>
-
-            <div className="mb-[20px]">
-                <b>Past Medical History</b>
-
-                <div>
-                    {consultation.pastmedicalhistory ||
-                        "-"}
-                </div>
-            </div>
-
-            <div className="mb-[20px]">
-                <b>Personal History</b>
-
-                <div>
-                    {consultation.personalhistory ||
-                        "-"}
-                </div>
-            </div>
-
             <div>
                 <b>Medications</b>
 

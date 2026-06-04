@@ -11,9 +11,9 @@ export default function ConsultationPdfButton({
     const downloadPdf = async () => {
         if (!pdfRef.current) return;
 
-        const canvas = await html2canvas(pdfRef.current, { scale: 0.8,useCORS: true,});
+        const canvas = await html2canvas(pdfRef.current, { scale: 1,useCORS: true,});
 
-        const imgData = canvas.toDataURL("image/jpeg", 0.7);
+        const imgData = canvas.toDataURL("image/jpeg", 1);
 
         const pdf = new jsPDF({orientation: "p",unit: "mm",format: "a4",compress: true});
 
@@ -39,7 +39,7 @@ export default function ConsultationPdfButton({
             heightLeft -= pageHeight;
         }
 
-        pdf.save(`${consultation.patient.fullname}-${new Date(consultation.createdat).toLocaleString("en-IN", {timeZone: "Asia/Kolkata",day: "2-digit",month: "short",year: "numeric",hour: "numeric",minute: "2-digit",hour12: true})}-consultation.pdf`);
+        pdf.save(`${consultation?.patient?.fullname}-${new Date(consultation.createdat).toLocaleString("en-IN", {timeZone: "Asia/Kolkata",day: "2-digit",month: "short",year: "numeric",hour: "numeric",minute: "2-digit",hour12: true})}-consultation.pdf`);
     };
 
     return (

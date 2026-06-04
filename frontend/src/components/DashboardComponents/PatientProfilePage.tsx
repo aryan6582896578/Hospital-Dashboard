@@ -1,7 +1,7 @@
 import {useContext, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import axios from "axios";
-import { AlertCircle, EditIcon, Plus, Save, SaveIcon, User, XIcon} from "lucide-react";
+import { AlertCircle, EditIcon, Plus, SaveIcon, User, XIcon} from "lucide-react";
 import HospitalSidebarComponent from "./HospitalSidebarComponent";
 import { UserRoleContext } from "../AuthPage";
 import ConsultationPdfButton from "./ConsultationPdfButton";
@@ -11,6 +11,7 @@ export default function PatientProfilePage(){
     const[patientProfileData,setpatientProfileData]=useState<any[]>([]);
     const[consultationData,setconsultationData]=useState<any[]>([]);
     const parms = useParams();
+    const userRole = useContext<any>(UserRoleContext);
 
 
     async function getPatientProfile(){
@@ -24,7 +25,6 @@ export default function PatientProfilePage(){
         const consultationData = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getpaitentconsultation`,{params:{hospitalname:parms.hospitalname,patientid:parms.patientid},withCredentials: true})
         if(consultationData.data.consultationDataPatient){
             setconsultationData(consultationData.data.consultationDataPatient)
-            console.log(consultationData.data.consultationDataPatient)
         }
     }
     
@@ -41,17 +41,19 @@ export default function PatientProfilePage(){
             <div className="flex w-full flex-col overflow-y-auto h-dvh pb-[20px] ">
                 <div className="min-h-20 border-b bg-white border-[#e8edf2] px-2 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center justify-between">
                     <div className="w-full lg:max-w-xl"></div>
+                    { (userRole.roleType==="doctor") && 
                     <button onClick={() => {
                         setdisplayAddConsultation(true);
                     }}
                     className="flex-1 lg:flex-none min-h-11 px-5 rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white transition-all flex items-center justify-center gap-2 font-semibold cursor-pointer">
-                    <Plus className="w-5 h-5 text-white " />
-                    Add Consultation
+                        <Plus className="w-5 h-5 text-white " />
+                        Add Consultation
                     </button>
+                    }
                 </div>
                 {displayAddConsultation && <AddConsultationComponent  parms={parms} patientProfileData={patientProfileData} setdisplayAddConsultation={setdisplayAddConsultation} displayAddConsultation={displayAddConsultation} getPatientConsultation={getPatientConsultation}/>}
                 <PatientProfileComponent parms={parms} patientProfileData={patientProfileData} getPatientProfile={getPatientProfile} setdisplayAddConsultation={setdisplayAddConsultation}  />
-                <PatientConsultationComponent consultationData={consultationData} />
+                <PatientConsultationComponent consultationData={consultationData} getPatientConsultation={getPatientConsultation} />
             </div>
         </div> 
     )
@@ -290,6 +292,7 @@ function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultat
     async function AddConsultationPost() {
         try {
             const addConsultation = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/patient/addconsultation/${parms.patientid}`,consultationData,{withCredentials: true});
+            console.log(addConsultation.data.status)
             if(addConsultation.data.status === "consultationCreated"){
                 getPatientConsultation()
                 setdisplayAddConsultation(false)
@@ -327,6 +330,10 @@ function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultat
         });
     }
 
+    useEffect(() => {
+        getPatientConsultation()
+    }, [])
+    
 
   return (
     <div className="bg-[#f6f8fb] w-full flex flex-col min-h-fit h-fit overflow-hidden ">
@@ -505,38 +512,49 @@ function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultat
   );
 }
 
-function PatientConsultationComponent({consultationData = [],}: {consultationData?: any[]}){
+function PatientConsultationComponent({consultationData = [], getPatientConsultation}: {consultationData?: any[], getPatientConsultation?: () => void }){
+    if (!consultationData) return;
+    useEffect(() => {
+        console.log(consultationData)
+    }, [])
     
     return(
         <div className="">
             {consultationData.map((x:any,y:any)=>{
                 return (
-                    <PatientConsultationDataComponent x={x} y={y}/>
+                    <PatientConsultationDataComponent x={x} y={y} getPatientConsultation={getPatientConsultation}/>
                 )
             })}
         </div>
     )
 }
-function PatientConsultationDataComponent({x,y}:any){
+function PatientConsultationDataComponent({x,y,getPatientConsultation}:any){
+    const userRole = useContext<any>(UserRoleContext);
     const parms= useParams();
-    const[paymentData,setpaymentData]=useState<{paymentamount:number,paymentstatus:string,paymentnote:string,hospitalname:string,consultationid:string,patientid:string}>({paymentamount:x.paymentamount,paymentstatus:x.paymentstatus,paymentnote:x.paymentnote,hospitalname:parms.hospitalname,consultationid:x.consultationid,patientid:parms.hospitalname})
+    const[paymentData,setpaymentData]=useState<{paymentamount:number,paymentstatus:string,paymentnote:string,hospitalname:string,consultationid:string,patientid:string}>({paymentamount:x.paymentamount,paymentstatus:x.paymentstatus,paymentnote:x.paymentnote,hospitalname:parms.hospitalname || "",consultationid:x.consultationid,patientid:parms.hospitalname || ""})
     const [isDisabled,setisDisabled]=useState<boolean>(true);
     
     async function UpdatePaymentPost(){
         const updatePayment = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/patient/updatepaymentconsultation`,paymentData,{ withCredentials: true });
         console.log(updatePayment.data.status)
         if(updatePayment.data.status==="updatedPayment"){
+            getPatientConsultation()
             setisDisabled(true)
+            
         }else if(updatePayment.data.status==="updatedNotPayment"){
             console.log("contact admin ")
         }
     }
+    useEffect(() => {
+      getPatientConsultation()
+    }, [isDisabled])
+    
     return(
                 <div className="bg-white m-[20px] flex cursor-pointer hover:bg-blue-100  rounded-[10px] flex-col p-[20px]" key={x.consultationid}>
                     <div className="text-[20px]">Consultation {y+1}</div>
                     <div className="flex justify-between">
                         <div className="">
-                            <div className="text-[#64748b] text-xs mb-[5px] mt-[10px]">Patient Name: {x.patient.fullname}</div>
+                            <div className="text-[#64748b] text-xs mb-[5px] mt-[10px]">Patient Name: {x?.patient?.fullname}</div>
                             <div className="text-[#64748b] text-xs mb-[5px] ">Doctor Name: {x.doctorname}</div>  
                             <div className="text-[#64748b] text-xs mb-[5px] "> Date: {new Date(x.createdat).toLocaleString("en-IN", {timeZone: "Asia/Kolkata",day: "2-digit",month: "short",year: "numeric",hour: "numeric",minute: "2-digit",hour12: true})}</div>
                         </div>
@@ -547,17 +565,19 @@ function PatientConsultationDataComponent({x,y}:any){
                     <div className="flex justify-between">
                         <div className="text-[#64748b] text-xs flex gap-2 mt-auto mb-auto">
                             <div className="">Amount: {x.paymentamount}</div>
-                            <div className="">Status: {x.paymentstatus}</div>
-                            {x.paymentnote && <div className="">Amount: {x.paymentnote}</div>}
+                            <div className="uppercase">Status: {x.paymentstatus}</div>
+                            {x.paymentnote && <div className="">Payment Note: {x.paymentnote}</div>}
                             <div className="">Payment Updated By: {x.paymentupdatedby}</div>
                         </div>
-                        {isDisabled? <div className="">
+                        {isDisabled? <div className=""> { (userRole.roleType==="doctor" || userRole.roleType==="nurse") &&  <div className="">
                             <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-green-200 transition-all flex items-center gap-2 text-[#1e293b] cursor-pointer font-semibold" onClick={()=>{
+                                getPatientConsultation()
                                 setisDisabled(false)
                             }}>
                                 <EditIcon className="w-4 h-4" /> Edit Payment
                             </button>
                         </div>
+                        } </div>
                         :
                         <div className="flex gap-2">
                             <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] hover:bg-[#394d6e] transition-all flex items-center gap-2 bg-[#1e293b] text-white whitespace-nowrap cursor-pointer font-semibold" onClick={()=>{
@@ -594,7 +614,7 @@ function PatientConsultationDataComponent({x,y}:any){
                                     </select>
                                 </div>
                                 <div className="text-[#64748b]">
-                                    Amount
+                                    Payment Note
                                     <input type="text" maxLength={10} className={`resize-none border break-all w-full  rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative text-[#64748b] outline-0 border-[#dbe4ee] p-[10px]`} onChange={(e:any)=>{
                                         setpaymentData({...paymentData,paymentnote:e.target.value});
                                         }} value={paymentData.paymentnote} placeholder="Payment Note..."/>
