@@ -1,7 +1,7 @@
 import {  useContext, useEffect, useState } from "react";
 import {  useParams } from "react-router";
 import axios from "axios";
-import { AlertCircle, NotepadText, Save, User} from "lucide-react";
+import { AlertCircle, NotepadText, Save, User, XIcon} from "lucide-react";
 import HospitalSidebarComponent from "./HospitalSidebarComponent";
 import { UserRoleContext } from "../AuthPage";
 
@@ -11,7 +11,6 @@ export function HospitalPage(){
     const [searchDate,setsearchDate]=useState(today.toISOString().split("T")[0])
     const[appoinmentsData,setappoinmentsData]=useState<any[]>([]);
     const parms = useParams();
-    // console.log(parms.hospitalname)
 
     async function getAppoinments(){
         
@@ -44,13 +43,13 @@ export function HospitalPage(){
 function AppointmentsPage({setsearchDate,searchDate,appoinmentsData,getAppoinments}:any){
     const [displayAddAppoinment,setdisplayAddAppoinment]=useState<boolean>(false);
     return(
-        <div className="flex w-full flex-col overflow-y-auto h-dvh pb-[20px] overflow-x-hidden">
+        <div className="flex w-full flex-col overflow-y-auto h-dvh pb-[20px] overflow-x-hidden ">
                 <div className="min-h-20 border-b bg-white border-[#e8edf2] px-2 sm:px-4 lg:px-8 py-4 lg:flex flex-col lg:flex-row lg:items-center hidden">
 
                 </div>
-                <div className="flex flex-col lg:flex-row">
+                <div className="flex flex-col ">
                     <AddAppoinmentsComponent setdisplayAddAppoinment={setdisplayAddAppoinment} displayAddAppoinment={displayAddAppoinment}/>
-                    <ListAppoinmentsComponent setsearchDate={setsearchDate} searchDate={searchDate} appoinmentsData={appoinmentsData} getAppoinments={getAppoinments}/>
+                    <ListAppoinmentsComponent setsearchDate={setsearchDate} searchDate={searchDate} appoinmentsData={appoinmentsData} getAppoinments={getAppoinments} setdisplayAddAppoinment={setdisplayAddAppoinment}/>
                 </div>
         </div>
     )
@@ -76,8 +75,8 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment}:
     }
     
     return (
-        <div className="lg:w-[60%] bg-white  m-[5px] mt-[10px] lg:m-[20px] p-[20px] rounded-[10px] shadow-xl border-[#e8edf2] border-1 h-fit">
-            <div className="flex ">
+        <div className=" bg-white  m-[5px] mt-[10px] lg:m-[20px] rounded-[10px] shadow-2xs border-[#e8edf2] border-1 h-fit">
+            <div className="flex m-[20px]">
                 <button className="flex-1 lg:flex-none min-h-11 px-5 rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white transition-all flex items-center justify-center gap-2 font-semibold cursor-pointer" onClick={()=>{
                     setdisplayAddAppoinment(true)
                 }}> 
@@ -86,7 +85,7 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment}:
             </div>
             {errorMessage && (<p className="text-xl text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{errorMessage}</p>)}
             {displayAddAppoinment &&
-            <div className="mt-[20px]">
+            <div className="mt-[20px] border-t border-[#dbe4ee] p-[20px] ">
                 <form onSubmit={(e)=>{
                     e.preventDefault();
                     if(appoinmentData.name){
@@ -109,34 +108,35 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment}:
                     }
                 }}> 
                     <div className="flex gap-2  mb-[20px] flex-col lg:flex-row">
-                        <div className="select-none flex flex-col mr-[10px] ">
-                            <div className="text-[#64748b] text-sm mb-2 ml-[1px] select-none">Name <span className="text-red-500">*</span> </div>
+                        <div className="select-none flex flex-col mr-[10px] w-full">
+                            <div className="text-[#64748b] text-sm mb-2 ml-[1px] select-none">Full Name <span className="text-red-500">*</span> </div>
                             <div className="flex relative select-none">
                                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748b] z-1 select-none" />
                                 <input type="text" maxLength={100} className={`border w-full h-[50px] rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative pl-[50px] text-[#64748b] outline-0 border-[#dbe4ee]`} onChange={(e:any)=>{
                                     seterrorMessage("")
                                     setappoinmentData({...appoinmentData,name:e.target.value});
-                                }} value={appoinmentData.name} placeholder="Enter Name..."/>
+                                }} value={appoinmentData.name} placeholder="Enter Patient Name..."/>
                             </div>
-                            
                         </div>
-                        <div className="select-none flex flex-col mr-[10px] ">
+                        <div className="select-none flex flex-col mr-[10px] lg:w-[30%] ">
                             <div className="text-[#64748b] text-sm mb-2 ml-[1px] select-none">Phone Number </div>
                             <div className="flex relative select-none">
                                 <input type="text" maxLength={15} className={`border w-full h-[50px] rounded-[10px] bg-[#f8fafc] p-[5px] hover:text-[#3e4856] relative  text-[#64748b] outline-0 border-[#dbe4ee]`} onChange={(e:any)=>{
                                     setappoinmentData({...appoinmentData,phonenumber:e.target.value});
-                                }} value={appoinmentData.phonenumber} placeholder="Enter Phone Number..."/>
+                                }} value={appoinmentData.phonenumber} placeholder="+91 0000000000"/>
                             </div>
                         </div>
-                        <div className="select-none flex flex-col mr-[10px] ">
+                    </div>
+                    <div className="flex gap-2  mb-[20px] flex-col lg:flex-row ">
+                        <div className="select-none flex flex-col mr-[10px] w-full">
                             <div className="text-[#64748b] text-sm mb-2 ml-[1px] select-none">Age</div>
                             <div className="flex relative select-none">
-                                <input type="string" maxLength={10} className={`border w-[70px] h-[50px] rounded-[10px] bg-[#f8fafc] p-[10px] hover:text-[#3e4856] relative  text-[#64748b] outline-0 border-[#dbe4ee]`} onChange={(e:any)=>{
+                                <input type="string" maxLength={10} className={`border w-full h-[50px] rounded-[10px] bg-[#f8fafc] p-[10px] hover:text-[#3e4856] relative  text-[#64748b] outline-0 border-[#dbe4ee]`} onChange={(e:any)=>{
                                     setappoinmentData({...appoinmentData,age:e.target.value});
-                                }} value={appoinmentData.age} />
+                                }} value={appoinmentData.age} placeholder="Age"/>
                             </div>
                         </div>
-                        <div className="select-none min-w-[100px] mr-[10px]">
+                        <div className="select-none min-w-[100px] mr-[10px] w-full">
                             <label className="block mb-2 text-sm font-medium text-[#64748b]">Gender</label>
                             <select value={appoinmentData.gender} onChange={(e) =>
                                 setappoinmentData({...appoinmentData,gender: e.target.value,})
@@ -147,17 +147,7 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment}:
                                 <option value="other">Other</option>
                             </select>
                         </div>
-                    </div>
-                    <div className="mt-[10px] flex flex-col lg:flex-row">
-                        <div className="select-none flex flex-col mr-[10px] ">
-                            <div className="text-[#64748b] text-sm mb-2 ml-[1px] select-none">Reason</div>
-                            <div className="flex relative select-none">
-                                <textarea maxLength={200} rows={4} className={`resize-none border break-all w-full  rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative text-[#64748b] outline-0 border-[#dbe4ee] p-[5px]`} onChange={(e:any)=>{
-                                    setappoinmentData({...appoinmentData,reason:e.target.value});
-                                }} value={appoinmentData.reason} placeholder="Routine Checkup..."/>
-                            </div>
-                        </div>
-                        <div className="select-none min-w-[100px] mr-[10px]">
+                        <div className="select-none min-w-[100px] mr-[10px] w-full">
                             <label className="block mb-2 text-sm font-medium text-[#64748b]">Status</label>
                             <select value={appoinmentData.status} onChange={(e) =>
                                 setappoinmentData({...appoinmentData,status: e.target.value,})
@@ -171,7 +161,9 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment}:
                                 
                             </select>
                         </div>
-                        <div className="select-none flex flex-col mr-[10px] cursor-pointer">
+                    </div>
+                    <div className="flex gap-2  mb-[20px] flex-col lg:flex-row">
+                        <div className="select-none flex flex-col mr-[10px] cursor-pointer w-full">
                             <div className="text-[#64748b] text-sm mb-2 ml-[1px] select-none">Date</div>
                             <div className="flex relative select-none">
                                 <input type="date" maxLength={5} className={`border w-full h-[50px] rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative text-[#64748b] outline-0 border-[#dbe4ee] p-[5px] cursor-pointer`} onChange={(e:any)=>{
@@ -179,12 +171,20 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment}:
                                 }} value={appoinmentData.date}/>
                             </div>
                         </div>
-                        <div className="select-none flex flex-col mr-[10px] ">
+                        <div className="select-none flex flex-col mr-[10px] w-full">
                             <div className="text-[#64748b] text-sm mb-2 ml-[1px] select-none">Time</div>
                             <div className="flex relative select-none">
                                 <input type="time" maxLength={15} className={`border w-full h-[50px] rounded-[10px] bg-[#f8fafc] p-[5px] hover:text-[#3e4856] relative  text-[#64748b] outline-0 border-[#dbe4ee]`} onChange={(e:any)=>{
                                     setappoinmentData({...appoinmentData,time:e.target.value});
                                 }} value={appoinmentData.time} />
+                            </div>
+                        </div>
+                        <div className="select-none flex flex-col mr-[10px] w-full">
+                            <div className="text-[#64748b] text-sm mb-2 ml-[1px] select-none">Reason</div>
+                            <div className="flex relative select-none">
+                                <textarea maxLength={200} rows={2} className={`resize-none border break-all w-full  rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative text-[#64748b] outline-0 border-[#dbe4ee] p-[5px]`} onChange={(e:any)=>{
+                                    setappoinmentData({...appoinmentData,reason:e.target.value});
+                                }} value={appoinmentData.reason} placeholder=" eg Routine Checkup..."/>
                             </div>
                         </div>
                     </div>
@@ -207,25 +207,32 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment}:
     )
 }
 
-function ListAppoinmentsComponent({setsearchDate,searchDate,appoinmentsData,getAppoinments}:any){
+function ListAppoinmentsComponent({setsearchDate,searchDate,appoinmentsData,getAppoinments,setdisplayAddAppoinment}:any){
     return(
-        <div className="lg:w-full  m-[5px] mt-[10px] lg:m-[20px] p-[20px] rounded-[10px] bg-white">
-            <div className="flex">
-                <div className="m-[20px] text-3xl ">Appoinments </div>
-                <input type="date" className="text-xl cursor-pointer text-blue-500 outline-none" value={searchDate} onChange={(e)=>{
+        <div className="w-full">
+            <div className="flex flex-col lg:flex-row">
+                <div className="m-[20px] text-3xl font-semibold">Appoinments Scheduled Today</div>
+                <input type="date" className="bg-blue-200 h-fit mt-auto mb-auto font-semibold p-[10px] rounded-full ml-[10px] mr-[10px] w-fit" value={searchDate} onChange={(e)=>{
                     setsearchDate(e.target.value)
                 }}/>
             </div>
-            <div className="">
+            <div className="flex flex-col text-center">
+                <div className="bg-[#f2f4f6] m-[20px] mb-0 p-[20px] rounded-[5px] border-[#e8edf2] border border-b-0 hover:bg-blue-100 rounded-bC-none text-[#555658] font-semibold flex justify-between flex-col text-left lg:flex-row lg:text-center">
+                    <div className="w-full">Patient Name</div>
+                    <div className="w-full">Contact</div>
+                    <div className="w-full">Date & Time</div>
+                    <div className="w-full">Status</div>
+                    <div className="w-full">Action</div>
+                </div>
                 {appoinmentsData?.map((x:any,y:any)=>{
-                    return <ListAppoinmentsDataComponent x={x} key={y} getAppoinments={getAppoinments}/>
+                    return <ListAppoinmentsDataComponent x={x} key={y} getAppoinments={getAppoinments} setdisplayAddAppoinment={setdisplayAddAppoinment}/>
                 })}
             </div>
         </div>
     )
 }
 
-function ListAppoinmentsDataComponent({ x,getAppoinments }: any) {
+function ListAppoinmentsDataComponent({ x,getAppoinments,setdisplayAddAppoinment }: any) {
     const userRole = useContext<any>(UserRoleContext);
     const parms=useParams()
     const [appointmentData, setAppointmentData] = useState({appointmentid: x.appointmentid,status: x.status,reason: x.reason || "",hospitalname: parms.hospitalname ?? ""});
@@ -240,6 +247,7 @@ function ListAppoinmentsDataComponent({ x,getAppoinments }: any) {
             if (update.data.status === "appointmentUpdated") {
                 getAppoinments();
                 setIsDisabled(true);
+                setdisplayAddAppoinment(false)
             }
         } catch (error) {
             console.log(error);
@@ -247,10 +255,65 @@ function ListAppoinmentsDataComponent({ x,getAppoinments }: any) {
     }
 
     return (
-        <div className="bg-white m-[20px] p-[20px] rounded-[5px] border-[#e8edf2] border hover:bg-blue-100">
+        <div className="bg-white m-[20px] mt-0 mb-0 p-[20px]  border-[#e8edf2] border   hover:bg-blue-100  flex justify-between flex-col lg:flex-row text-left lg:text-center gap-4">
 
-            <div className="flex justify-between">
-                <div>
+            <div className="flex w-full ">
+                <div className="w-9 h-9 rounded-full bg-blue-300 text-blue-900 flex items-center justify-center font-semibold cursor-pointer mt-auto mb-auto">{x.name[0]}</div>
+                <div className="ml-[20px] mt-auto mb-auto ">{x.name}</div>
+            </div>
+            <div className="w-full mt-auto mb-auto">
+                {x.phonenumber}
+            </div>
+            <div className="w-full mt-auto mb-auto">
+                <div className="">{new Date(x.appointmentdate).toLocaleString("en-IN", {timeZone: "Asia/Kolkata",day: "2-digit",month: "short",year: "numeric"})}</div>
+                <div className="text-[#47484a]">{x.appointmenttime}</div>
+            </div>
+                <div className="w-full mt-auto mb-auto">
+                    {isDisabled ? (<div className="flex"><div className="bg-green-100 text-black p-[5px] pl-[10px] pr-[10px] rounded-[10px] ml-auto mr-auto uppercase">{x.status}</div></div>) 
+                    : (
+                        <div className="mt-4 flex gap-4">
+                            <div>
+                                <select value={appointmentData.status} onChange={(e) =>setAppointmentData({...appointmentData,status: e.target.value})} className="border rounded p-2 outline-none">
+                                    <option value="booked">Booked</option>
+                                    <option value="ongoing">Ongoing</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                    <option value="noshow">No Show</option>
+                                </select>
+                            </div>
+
+                        </div>
+                    )}
+                </div>
+                <div className="w-full flex">
+
+                        {(userRole.roleType === "doctor" || userRole.roleType === "nurse") && (
+
+                                isDisabled ? (
+                                    <div className="ml-auto mr-auto">
+                                        <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-green-200 ml-auto mr-auto" onClick={() => setIsDisabled(false)}>
+                                            Edit
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex gap-2 ml-auto">
+                                        <button className=" w-full h-fit lg:w-fit pl-[20px] pr-[20px] min-h-[40px] rounded-xl bg-[#1e3a5f] hover:bg-[#245188] text-white transition-all flex items-center justify-center gap-2 font-medium cursor-pointer" onClick={updateAppointment}>
+                                            <Save/>
+                                        </button>
+
+                                        <button
+                                            className="w-full h-fit lg:w-fit pl-[20px] pr-[20px] min-h-[40px] rounded-xl bg-white hover:bg-red-300 text-black transition-all flex items-center justify-center gap-2 font-medium cursor-pointer"
+                                            onClick={() => {
+                                                setAppointmentData({ appointmentid: x.appointmentid, status: x.status,reason: x.reason || "",hospitalname: parms.hospitalname ?? ""});
+                                                setIsDisabled(true);
+                                            }}>
+                                            <XIcon/>
+                                        </button>
+                                    </div>
+                                )
+                        )}
+                </div>
+                {/* <div>
                     <div className="flex gap-2 flex-col lg:flex-row">
                         <div className="">Name: {x.name}</div>
                         {x.phonenumber &&  <div className="">Phone Number: {x.phonenumber}</div>}
@@ -311,8 +374,7 @@ function ListAppoinmentsDataComponent({ x,getAppoinments }: any) {
                             )}
                         </div>
                 </div>
-                </div>
-            </div>
+                </div> */}
         </div>
     );
 }
