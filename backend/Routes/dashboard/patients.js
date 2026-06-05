@@ -229,6 +229,7 @@ export default function Patientsroute(app){
             return res.json({status:"invalidRequest"})
         }
     });
+
     router.get('/getpaitentconsultation',checkJwt, async(req, res) => {
 
         if(req.validUser){
@@ -364,6 +365,7 @@ export default function Patientsroute(app){
         }
     
     })
+
     router.post('/updatepaymentconsultation', checkJwt, async (req, res) => {
         const {paymentamount,paymentstatus,paymentnote,hospitalname,consultationid,patientid} = req.body;
 
@@ -394,10 +396,10 @@ export default function Patientsroute(app){
         if(req.validUser){
             if(req.roleType==="admin"){
                 try {
-                    const consultations = await pool.query(
+                    const [consultations,paymentamount] = await Promise.all([
+                     pool.query(
                         `SELECT
                             c.*,
-
                             json_build_object(
                                 'patientid', p.patientid,
                                 'fullname', p.fullname,
@@ -447,9 +449,29 @@ export default function Patientsroute(app){
                             c.createdat DESC 
                         LIMIT 10;`,
                         [req.query.hospitalname]
-                    );
+                    ),
+                    pool.query(
+                                `SELECT
+                                    COALESCE(
+                                        SUM(CASE WHEN paymentstatus = 'paid'
+                                            THEN paymentamount END),
+                                        0
+                                    ) AS totalpaidamount,
 
-                    res.json({consultationDataAll: consultations.rows});
+                                    COALESCE(
+                                        SUM(CASE WHEN paymentstatus = 'unpaid'
+                                            THEN paymentamount END),
+                                        0
+                                    ) AS totalunpaidamount
+                                FROM consultations
+                                WHERE hospitalname = $1
+                                `,
+                                [req.query.hospitalname]
+                            )
+
+                    ])
+
+                    res.json({consultationDataAll: consultations.rows , payments:paymentamount.rows[0] });
                 } catch (error) {
                     res.json({status:"unableToGetConsultation"})
                     console.log("error in getting patient consultation admin")
@@ -459,61 +481,81 @@ export default function Patientsroute(app){
                     const hasAccess = await pool.query(`SELECT * FROM hospitalinfo WHERE name=$2 AND $1 = ANY(doctorlist)`,[req.username,req.query.hospitalname]);
                     if(hasAccess.rowCount===1){
                         try {
-                        const consultations = await pool.query(
-                            `SELECT
-                                c.*,
+                    const [consultations,paymentamount] = await Promise.all([
+                     pool.query(
+                        `SELECT
+                            c.*,
+                            json_build_object(
+                                'patientid', p.patientid,
+                                'fullname', p.fullname,
+                                'gender', p.gender,
+                                'age', p.age,
+                                'dob', p.dob,
+                                'phonenumber', p.phonenumber,
+                                'address', p.address,
+                                'bloodgroup', p.bloodgroup,
+                                'allergies', p.allergies,
+                                'chronicconditions', p.chronicconditions,
+                                'notes', p.notes,
+                                'emergencycontactname', p.emergencycontactname,
+                                'emergencycontactnumber', p.emergencycontactnumber
+                            ) AS patient,
 
-                                json_build_object(
-                                    'patientid', p.patientid,
-                                    'fullname', p.fullname,
-                                    'gender', p.gender,
-                                    'age', p.age,
-                                    'dob', p.dob,
-                                    'phonenumber', p.phonenumber,
-                                    'address', p.address,
-                                    'bloodgroup', p.bloodgroup,
-                                    'allergies', p.allergies,
-                                    'chronicconditions', p.chronicconditions,
-                                    'notes', p.notes,
-                                    'emergencycontactname', p.emergencycontactname,
-                                    'emergencycontactnumber', p.emergencycontactnumber
-                                ) AS patient,
+                            COALESCE(
+                                json_agg(
+                                    json_build_object(
+                                        'medicationid', m.medicationid,
+                                        'medicinename', m.medicinename,
+                                        'duration', m.duration,
+                                        'dosage', m.dosage,
+                                        'timing', m.timing,
+                                        'notes', m.notes
+                                    )
+                                ) FILTER (WHERE m.medicationid IS NOT NULL),
+                                '[]'
+                            ) AS medications
 
-                                COALESCE(
-                                    json_agg(
-                                        json_build_object(
-                                            'medicationid', m.medicationid,
-                                            'medicinename', m.medicinename,
-                                            'duration', m.duration,
-                                            'dosage', m.dosage,
-                                            'timing', m.timing,
-                                            'notes', m.notes
-                                        )
-                                    ) FILTER (WHERE m.medicationid IS NOT NULL),
-                                    '[]'
-                                ) AS medications
+                        FROM consultations c
 
-                            FROM consultations c
+                        INNER JOIN patients p
+                            ON c.patientid = p.patientid
 
-                            INNER JOIN patients p
-                                ON c.patientid = p.patientid
+                        LEFT JOIN consultation_medications m
+                            ON c.consultationid = m.consultationid
 
-                            LEFT JOIN consultation_medications m
-                                ON c.consultationid = m.consultationid
+                        WHERE c.hospitalname = $1
 
-                            WHERE c.hospitalname = $1
+                        GROUP BY
+                            c.consultationid,
+                            p.patientid
 
-                            GROUP BY
-                                c.consultationid,
-                                p.patientid
+                        ORDER BY
+                            (c.paymentstatus = 'paid'),
+                            c.createdat DESC 
+                        LIMIT 10;`,
+                        [req.query.hospitalname]
+                    ),
+                    pool.query(
+                                `SELECT
+                                    COALESCE(
+                                        SUM(CASE WHEN paymentstatus = 'paid'
+                                            THEN paymentamount END),
+                                        0
+                                    ) AS totalpaidamount,
 
-                            ORDER BY
-                                (c.paymentstatus = 'paid'),
-                                c.createdat DESC
-                                LIMIT 10;`,
-                            [req.query.hospitalname]
-                        );
-                            res.json({consultationDataAll: consultations.rows});
+                                    COALESCE(
+                                        SUM(CASE WHEN paymentstatus = 'notpaid'
+                                            THEN paymentamount END),
+                                        0
+                                    ) AS totalunpaidamount
+                                FROM consultations
+                                WHERE hospitalname = $1
+                                `,
+                                [req.query.hospitalname]
+                            )
+
+                    ])
+                            res.json({consultationDataAll: consultations.rows , payments:paymentamount.rows[0] });
                         } catch (error) {
                             res.json({status:"unableToGetConsultation"})
                             console.log("error in getting patient consultation",error)
@@ -596,5 +638,134 @@ export default function Patientsroute(app){
     
     })
 
+    router.post('/addappoinment',checkJwt, async(req, res) => {
+        const appointmentid = crypto.randomUUID();
+        const name = req.body.name;
+        const phonenumber = req.body.phonenumber;
+        const age = req.body.age || null;
+        const gender = req.body.gender;
+        const reason = req.body.reason || null;
+        const status = req.body.status || "booked";
+        const appointmentdate = req.body.date;
+        const appointmenttime = req.body.time;
+        const hospitalname = req.body.hospitalname;
+        const createdby = req.username;
+
+        if(req.validUser && hospitalname && name && gender &&appointmentdate &&appointmenttime &&(req.roleType === "doctor" || req.roleType === "nurse")){
+            try {
+                const hasAccess = await pool.query(`SELECT * FROM hospitalinfo WHERE name=$2 AND ($1 = ANY(doctorlist) OR $1 = ANY(nurselist))`,[req.username,hospitalname]);
+                if(hasAccess.rowCount===1){
+                    try {
+                    const addAppointment = await pool.query(`INSERT INTO appointments (appointmentid,hospitalname,name,phonenumber,age,gender,reason,status,appointmentdate,appointmenttime,createdby)
+                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)RETURNING *`,
+                    [appointmentid,hospitalname,name,phonenumber,age,gender,reason,status,appointmentdate, appointmenttime,createdby]
+                );
+
+                if (addAppointment.rowCount === 1) {
+                    return res.json({status: "appointmentCreated"});
+                }
+                return res.json({status: "appointmentNotCreated"});
+                    } catch (error) {
+                        console.log("error in adding appoinment",error)
+                    }
+                }
+            } catch (error) {
+                onsole.log("error in add appoinment",error)
+            }
+        }else{
+            res.json({status:"invalidUser"})
+        }
+    })
+    router.get('/getappointments', checkJwt, async (req, res) => {
+
+        const hospitalname = req.query.hospitalname;
+        const appointmentdate = req.query.appointmentdate || new Date().toISOString().split('T')[0];
+
+        if (req.validUser) {
+
+            if (req.roleType === "admin") {
+                try {
+                    const appointments = await pool.query(`SELECT *FROM appointments WHERE hospitalname = $1 AND appointmentdate = $2 ORDER BY appointmenttime ASC`,[hospitalname, appointmentdate]);
+                    return res.json({appointments: appointments.rows});
+
+                } catch (error) {
+                    console.log("error getting appointments admin", error);
+                    return res.json({status: "unableToGetAppointments"});
+                }
+            } else {
+
+                try {
+
+                    const hasAccess = await pool.query(`SELECT *FROM hospitalinfo WHERE name = $2 AND ($1 = ANY(doctorlist)OR $1 = ANY(nurselist))`,[req.username, hospitalname]);
+
+                    if (hasAccess.rowCount === 1) {
+
+                        const appointments = await pool.query(`SELECT * FROM appointments WHERE hospitalname = $1 AND appointmentdate = $2 ORDER BY appointmenttime ASC`,[hospitalname, appointmentdate]);
+
+                        return res.json({appointments: appointments.rows});
+                    }
+
+                    return res.json({status: "noAccess"});
+
+                } catch (error) {
+                    console.log("error getting appointments", error);
+                    return res.json({ status: "unableToGetAppointments"});
+                }
+            }
+
+        } else {
+            return res.json({status: "invalidUser"});
+        }
+    });
+    router.post('/updateappointment', checkJwt, async (req, res) => {
+
+        const { appointmentid,hospitalname,status,reason} = req.body;
+        console.log(req.body)
+
+        if (req.validUser &&(req.roleType === "doctor" || req.roleType === "nurse") && appointmentid && hospitalname) {
+            try {
+
+                const hasAccess = await pool.query(`SELECT * FROM hospitalinfo WHERE name = $2 AND ($1 = ANY(doctorlist) OR $1 = ANY(nurselist))`,[req.username, hospitalname]);
+
+                if (hasAccess.rowCount !== 1) {
+                    return res.json({status: "invalidUser"});
+                }
+
+                const updateAppointment = await pool.query(
+                    `UPDATE appointments
+                    SET
+                        status = $1,
+                        reason = $2,
+                        updatedat = CURRENT_TIMESTAMP
+                    WHERE appointmentid = $3`,
+                    [
+                        status,
+                        reason,
+                        appointmentid
+                    ]
+                );
+
+                if (updateAppointment.rowCount === 1) {
+                    return res.json({status: "appointmentUpdated"});
+                }
+
+                return res.json({status: "appointmentNotUpdated"});
+
+            } catch (error) {
+
+                console.log(error);
+
+                return res.json({
+                    status: "appointmentNotUpdated"
+                });
+            }
+
+        } else {
+
+            return res.json({
+                status: "invalidRequest"
+            });
+        }
+    });
     return router;
 }

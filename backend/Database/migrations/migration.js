@@ -109,4 +109,29 @@ export async function runDb(){
     } catch (error) {
         console.log("Error In Creating Consultations Medication Table",error)
     }
+    try {
+        console.log("Creating Appoinments Table")
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS appointments (
+                appointmentid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                hospitalname VARCHAR(255) NOT NULL,
+                name VARCHAR(255) NOT NULL,
+                phonenumber VARCHAR(20),
+                age VARCHAR(20),
+                gender VARCHAR(20) NOT NULL
+                    CHECK (gender IN ('male', 'female', 'other')),
+                reason TEXT,
+                status VARCHAR(20) NOT NULL DEFAULT 'booked'
+                    CHECK (status IN ('booked', 'completed', 'cancelled', 'noshow','ongoing')),
+                appointmentdate DATE NOT NULL,
+                appointmenttime TIME NOT NULL,
+                createdby VARCHAR(100) NOT NULL,
+                createdat TIMESTAMPTZ DEFAULT NOW(),
+                updatedat TIMESTAMPTZ DEFAULT NOW()
+            );
+            `)
+
+    } catch (error) {
+        console.log("Error In Creating Appoinments Table",error)
+    }
 }

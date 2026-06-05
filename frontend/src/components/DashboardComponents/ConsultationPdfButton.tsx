@@ -2,7 +2,7 @@ import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { useRef } from "react";
 import ConsultationPdfTemplate from "./ConsultationPdfTemplate.tsx";
-import { PrinterCheckIcon, PrinterIcon } from "lucide-react";
+import {PrinterIcon } from "lucide-react";
 
 export default function ConsultationPdfButton({
     consultation,

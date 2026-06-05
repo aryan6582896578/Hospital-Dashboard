@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { UserRoleContext } from "../AuthPage";
 import axios from "axios";
 
@@ -9,11 +9,13 @@ import { EditIcon, SaveIcon } from "lucide-react";
 
 export function FinancePage(){
     const [consultationData,setconsultationData]=useState<any[]>([]);
+    const [paymentData,setpaymentData]=useState<any[]>([]);
     const parms = useParams();
     async function getConsultations(){
         const consultations = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getallconsultations`,{params:{hospitalname:parms.hospitalname,patientid:parms.patientid},withCredentials: true})
        setconsultationData(consultations.data.consultationDataAll)
-       console.log(consultations.data.consultationDataAll[0].patientid)
+       setpaymentData(consultations.data.payments)
+       console.log(consultations.data.payments)
     }
 
     useEffect(() => {
@@ -24,7 +26,7 @@ export function FinancePage(){
         <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row overflow-hidden">
 
             <HospitalSidebarComponent />
-            <FinanceDataComponent consultationData={consultationData} getConsultations={getConsultations}/>
+            <FinanceDataComponent consultationData={consultationData} getConsultations={getConsultations} paymentData={paymentData}/>
         
         </div>
             
@@ -33,12 +35,24 @@ export function FinancePage(){
 
 }
 
-function FinanceDataComponent({consultationData,getConsultations}:any){
+function FinanceDataComponent({consultationData,getConsultations,paymentData}:any){
     const userRole = useContext<any>(UserRoleContext);
     return(
-            <div className="flex w-full flex-col overflow-y-auto h-dvh pb-[20px] ">
-                <div className="min-h-20 border-b bg-white border-[#e8edf2] px-2 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center justify-between">
-        
+        <div className="flex w-full flex-col overflow-y-auto h-dvh pb-[20px] ">
+                <div className="min-h-20 border-b bg-white border-[#e8edf2] px-2 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center  justify-end">
+                    {(userRole.roleType==="admin" || userRole.roleType==="doctor")
+                    && 
+                    <div className="flex gap-3 text-xl text-white">
+                        <div className="flex gap-3">
+                            <div className=" text-black mt-auto mb-auto">Total Paid</div>
+                            <div className="bg-green-400 p-[10px] rounded-[5px]">{paymentData.totalpaidamount} </div>
+                        </div>
+                        <div className="flex gap-3">
+                            <div className=" text-black mt-auto mb-auto">Total Unpaid </div>
+                            <div className="bg-yellow-400 p-[10px] rounded-[5px]">{paymentData.totalunpaidamount}</div>
+                        </div>
+                    </div>
+                    }
                 </div>
                 <div className="">
                     <PatientConsultationComponent consultationData={consultationData} getConsultations={getConsultations} />
@@ -63,7 +77,7 @@ function PatientConsultationComponent({consultationData = [], getConsultations}:
         </div>
     )
 }
-function PatientConsultationDataComponent({x,y,getConsultations}:any){
+function PatientConsultationDataComponent({x,getConsultations}:any){
     const userRole = useContext<any>(UserRoleContext);
     const parms= useParams();
     const[paymentData,setpaymentData]=useState<{paymentamount:number,paymentstatus:string,paymentnote:string,hospitalname:string,consultationid:string,patientid:string}>({paymentamount:x.paymentamount,paymentstatus:x.paymentstatus,paymentnote:x.paymentnote,hospitalname:parms.hospitalname || "",consultationid:x.consultationid,patientid:parms.hospitalname || ""})
@@ -90,8 +104,9 @@ function PatientConsultationDataComponent({x,y,getConsultations}:any){
     }, [x.paymentamount, x.paymentstatus, x.paymentnote]);
     
     return(
-            <Link to={`/dashboard/${parms.hospitalname}/patients/${x.patientid}`}>
+            
                 <div className="bg-white m-[20px] flex cursor-pointer hover:bg-blue-100  rounded-[10px] flex-col p-[20px]">
+                    <Link to={`/dashboard/${parms.hospitalname}/patients/${x.patientid}`}>
                     <div className="flex justify-between">
                         <div className="text-black">
                             <div className=" text-s mb-[5px] mt-[10px]">Patient Name: {x?.patient?.fullname}</div>
@@ -102,6 +117,7 @@ function PatientConsultationDataComponent({x,y,getConsultations}:any){
                             <ConsultationPdfButton consultation={x}/>
                         </div>
                     </div>
+                    </Link>
                     <div className="flex justify-between flex-col lg:flex-row">
                         <div className="text-black text-s flex gap-2 mt-auto mb-auto flex-col">
                             <div className="">
@@ -178,6 +194,6 @@ function PatientConsultationDataComponent({x,y,getConsultations}:any){
                         </div>
                     }
                 </div>
-            </Link>
+         
     )
 }
