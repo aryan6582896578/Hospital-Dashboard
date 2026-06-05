@@ -15,7 +15,7 @@ export default function PatientProfilePage(){
 
 
     async function getPatientProfile(){
-        const patientData = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getpaitentprofile`,{params:{hospitalname:parms.hospitalname,patientid:parms.patientid},withCredentials: true})
+        const patientData = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getpatientprofile`,{params:{hospitalname:parms.hospitalname,patientid:parms.patientid},withCredentials: true})
         if(patientData.data.patientProfile){
             setpatientProfileData(patientData.data.patientProfile[0])
         }

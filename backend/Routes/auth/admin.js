@@ -38,10 +38,10 @@ export default function authroute(app){
                         httpOnly: true,
                         secure: process.env.ENV_TYPE === 'production',
                         sameSite: process.env.ENV_TYPE === 'production' ? 'None' : 'Lax',
-                        maxAge: 1000*60*60*22
+                        maxAge: 1000*60*60*12
                     })
                     res.cookie('tokenJwtCheck',`yes`,{
-                        maxAge: 1000*60*60*22
+                        maxAge: 1000*60*60*12
                     })
                     res.json({ status: "userValid" });
                 }else{
@@ -76,7 +76,7 @@ export default function authroute(app){
         const password= req.body.password
         const roleType=req.body.roleType
 
-        if(req.validUser){
+        if(req.validUser && req.roleType==="admin"){
             
             if(username&&displayname&&password&&roleType){
                 try {
@@ -110,13 +110,10 @@ export default function authroute(app){
                     }
                 } catch (error) {
                     console.log("error in admin portal trying to list user",error)
-                }
-                
-            
+                } 
         }else{
             res.json({status:"invalidUser"})
         }
-    
     })
     router.post('/admin/updateuser',checkJwt, async(req, res) => {
         const username = req.body.username

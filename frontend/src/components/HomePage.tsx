@@ -23,7 +23,10 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    if (document.cookie) {
+    
+    const tokenJwtCheck = document.cookie.split("; ").find((x)=> x.startsWith("tokenJwtCheck="))?.split("=")[1];
+
+    if (tokenJwtCheck==="yes") {
       setcookieCheck(true);
     }else{
         setcookieCheck(false);

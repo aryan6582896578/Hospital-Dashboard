@@ -41,7 +41,7 @@ export default function Patientsroute(app){
         const lastupdatedby = req.username;
         const hospitalname = req.body.hospitalname;
 
-        if(req.validUser && hospitalname && fullname){
+        if(req.validUser && hospitalname && fullname && req.roleType ==="doctor"){
             try {
                 const hasAccess = await pool.query(`SELECT * FROM hospitalinfo WHERE name=$2 AND ($1 = ANY(doctorlist) OR $1 = ANY(nurselist))`,[req.username,hospitalname]);
                 if(hasAccess.rowCount===1){
@@ -70,7 +70,7 @@ export default function Patientsroute(app){
         }
     })
 
-    router.get('/getpaitentlist',checkJwt, async(req, res) => {
+    router.get('/getpatientlist',checkJwt, async(req, res) => {
 
         if(req.validUser){
             if(req.roleType==="admin"){
@@ -111,7 +111,7 @@ export default function Patientsroute(app){
     
     })
 
-    router.get('/getpaitentprofile',checkJwt, async(req, res) => {
+    router.get('/getpatientprofile',checkJwt, async(req, res) => {
         
         if(req.validUser){
             if(req.roleType==="admin"){
@@ -160,7 +160,7 @@ export default function Patientsroute(app){
             try {
                 const hasAccess = await pool.query(`SELECT * FROM hospitalinfo WHERE name=$2 AND ($1 = ANY(doctorlist) OR $1 = ANY(nurselist))`,[req.username,hospitalname]);
                 if(hasAccess.rowCount===1){
-                    const validPatient = await pool.query( `SELECT 1 FROM patients WHERE patientid = $1`,[patientid]);
+                    const validPatient = await pool.query( `SELECT 1 FROM patients WHERE patientid = $1 AND hospitalname=$2`,[patientid,hospitalname]);
                     if(validPatient.rowCount ===1){
                         const updatePatient = await pool.query( `UPDATE patients SET fullname = $1, gender = $2, age = $3, dob = $4, phonenumber = $5, address = $6, bloodgroup = $7, allergies = $8, 
                             chronicconditions = $9, notes = $10, emergencycontactname = $11, emergencycontactnumber = $12, lastupdatedby = $13,updated_at = CURRENT_TIMESTAMP WHERE patientid = $14 RETURNING *`, 
@@ -178,7 +178,7 @@ export default function Patientsroute(app){
                     res.json({status:"invalidUser"})
                 }
             } catch (error) {
-                onsole.log("error in add patient",error)
+                console.log("error in add patient",error)
             }
 
         

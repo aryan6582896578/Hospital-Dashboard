@@ -11,7 +11,7 @@ export function PaitentPage(){
 
 
     async function getPatientList(){
-        const hospitalData = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getpaitentlist`,{params:{hospitalname:parms.hospitalname},withCredentials: true})
+        const hospitalData = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getpatientlist`,{params:{hospitalname:parms.hospitalname},withCredentials: true})
         if(hospitalData.data.patientlist){
             setpatientList(hospitalData.data.patientlist)
         }
