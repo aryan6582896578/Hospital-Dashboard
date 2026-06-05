@@ -313,68 +313,7 @@ function ListAppoinmentsDataComponent({ x,getAppoinments,setdisplayAddAppoinment
                                 )
                         )}
                 </div>
-                {/* <div>
-                    <div className="flex gap-2 flex-col lg:flex-row">
-                        <div className="">Name: {x.name}</div>
-                        {x.phonenumber &&  <div className="">Phone Number: {x.phonenumber}</div>}
-                    </div>
 
-                    <div className="flex gap-2 flex-col lg:flex-row">
-                            <div className="">Date: {new Date(x.appointmentdate).toLocaleString("en-IN", {timeZone: "Asia/Kolkata",day: "2-digit",month: "short",year: "numeric"})}</div>
-                            <div className="">Time: {x.appointmenttime}</div>
-                    </div>
-                    <div className="flex justify-between flex-col gap-2">
-                        <div className="">
-                            {isDisabled ? (
-                                <div className="mt-2">Status:<span className="ml-2 ">{x.status}</span></div>
-                            ) : (
-                                <div className="mt-4 flex gap-4">
-                                    <div>
-                                        <div>Status</div>
-
-                                        <select value={appointmentData.status} onChange={(e) =>setAppointmentData({...appointmentData,status: e.target.value})} className="border rounded p-2 outline-none">
-                                            <option value="booked">Booked</option>
-                                            <option value="ongoing">Ongoing</option>
-                                            <option value="completed">Completed</option>
-                                            <option value="cancelled">Cancelled</option>
-                                            <option value="noshow">No Show</option>
-                                        </select>
-                                    </div>
-
-                                </div>
-                            )}
-                        </div>
-                    
-                        <div className="flex">
-                            {(userRole.roleType === "doctor" || userRole.roleType === "nurse") && (
-
-                                isDisabled ? (
-                                    <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-green-200" onClick={() => setIsDisabled(false)}>
-                                        Edit
-                                    </button>
-                                ) : (
-                                    <div className="flex gap-2">
-                                        <button className=" w-full h-fit lg:w-fit pl-[20px] pr-[20px] min-h-[40px] rounded-xl bg-[#1e3a5f] hover:bg-[#245188] text-white transition-all flex items-center justify-center gap-2 font-medium cursor-pointer" onClick={updateAppointment}>
-                                            <Save/>
-                                            Save
-                                        </button>
-
-                                        <button
-                                            className="w-full h-fit lg:w-fit pl-[20px] pr-[20px] min-h-[40px] rounded-xl bg-white hover:bg-red-300 text-black transition-all flex items-center justify-center gap-2 font-medium cursor-pointer"
-                                            onClick={() => {
-                                                setAppointmentData({ appointmentid: x.appointmentid, status: x.status,reason: x.reason || "",hospitalname: parms.hospitalname ?? ""});
-
-                                                setIsDisabled(true);
-                                            }}
-                                        >
-                                            Cancel
-                                        </button>
-                                    </div>
-                                )
-                            )}
-                        </div>
-                </div>
-                </div> */}
         </div>
     );
 }
