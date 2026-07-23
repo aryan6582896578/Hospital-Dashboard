@@ -48,14 +48,14 @@ function AppointmentsPage({setsearchDate,searchDate,appoinmentsData,getAppoinmen
 
                 </div>
                 <div className="flex flex-col ">
-                    <AddAppoinmentsComponent setdisplayAddAppoinment={setdisplayAddAppoinment} displayAddAppoinment={displayAddAppoinment}/>
+                    <AddAppoinmentsComponent setdisplayAddAppoinment={setdisplayAddAppoinment} displayAddAppoinment={displayAddAppoinment} getAppoinments={getAppoinments} />
                     <ListAppoinmentsComponent setsearchDate={setsearchDate} searchDate={searchDate} appoinmentsData={appoinmentsData} getAppoinments={getAppoinments} setdisplayAddAppoinment={setdisplayAddAppoinment}/>
                 </div>
         </div>
     )
 }
 
-function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment}:any){
+function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment,getAppoinments}:any){
 
     const parms=useParams();
     const [appoinmentData,setappoinmentData]=useState<{name:string,phonenumber:string,age:string,gender:string,reason:string,status:string,date:string,time:string,hospitalname:string,}>({name:"",phonenumber:"",age:"",gender:"male",reason:"",status:"booked",date:"",time:"", hospitalname: parms.hospitalname ?? ""})
@@ -68,9 +68,10 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment}:
             // getPatientList()
             setdisplayAddAppoinment(false);
             setappoinmentData({...appoinmentData,name:"",phonenumber:"",age:"",gender:"male",reason:"",status:"booked",date:"",time:"", hospitalname: parms.hospitalname ?? ""})
-            
+            getAppoinments()
         }else if(addPatient.data.status==="appointmentNotCreated"){
             seterrorMessage("internal server error contact admin")
+            getAppoinments()
         }
     }
     
@@ -154,9 +155,7 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment}:
                                 }
                                 className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] pl-[10px] outline-none cursor-pointer ">
                                 <option value="booked">Booked</option>
-                                <option value="ongoing">On Going</option>
                                 <option value="cancelled">Cancelled</option>
-                                <option value="noshow">No Show</option>
                                 <option value="completed">Completed</option>
                                 
                             </select>
@@ -275,10 +274,8 @@ function ListAppoinmentsDataComponent({ x,getAppoinments,setdisplayAddAppoinment
                             <div>
                                 <select value={appointmentData.status} onChange={(e) =>setAppointmentData({...appointmentData,status: e.target.value})} className="border rounded p-2 outline-none">
                                     <option value="booked">Booked</option>
-                                    <option value="ongoing">Ongoing</option>
                                     <option value="completed">Completed</option>
                                     <option value="cancelled">Cancelled</option>
-                                    <option value="noshow">No Show</option>
                                 </select>
                             </div>
 
@@ -291,7 +288,7 @@ function ListAppoinmentsDataComponent({ x,getAppoinments,setdisplayAddAppoinment
 
                                 isDisabled ? (
                                     <div className="ml-auto mr-auto">
-                                        <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-green-200 ml-auto mr-auto" onClick={() => setIsDisabled(false)}>
+                                        <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-green-200 ml-auto mr-auto cursor-pointer" onClick={() => setIsDisabled(false)}>
                                             Edit
                                         </button>
                                     </div>

@@ -1,7 +1,7 @@
 import { useContext} from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { UserRoleContext } from "../AuthPage";
-import { ActivityIcon, ClipboardClockIcon, HomeIcon, LogOutIcon, UserPenIcon, Wallet } from "lucide-react";
+import { ActivityIcon, ClipboardClockIcon, HomeIcon, LogOutIcon, PillIcon, UserPenIcon, Wallet } from "lucide-react";
 import axios from "axios";
 
 export default function HospitalSidebarComponent(){
@@ -46,6 +46,9 @@ export default function HospitalSidebarComponent(){
                             <Link to={`/dashboard/${parms.hospitalname}/finance`}> <button className="flex  rounded-[5px] hover:bg-slate-100 cursor-pointer p-[10px] pl-[20px] pr-[20px]  lg:ml-auto lg:mr-auto  lg:mt-[10px] lg:min-w-[90%] min-w-fit"> <Wallet className="mr-[10px] text-blue-600"/>Finance </button></Link>
                             <Link to={`/dashboard/${parms.hospitalname}/patients`}> <button className="flex  rounded-[5px] hover:bg-slate-100 cursor-pointer p-[10px] pl-[20px] pr-[20px]  lg:ml-auto lg:mr-auto lg:mt-[10px] lg:min-w-[90%] min-w-fit"> <UserPenIcon className="mr-[10px] text-blue-600"/>Patients </button></Link>
                     </div>
+                    <div className="flex lg:flex-col">
+                            <Link to={`/dashboard/${parms.hospitalname}/MedicineList`}> <button className="flex  rounded-[5px] hover:bg-slate-100 cursor-pointer p-[10px] pl-[20px] pr-[20px]  lg:ml-auto lg:mr-auto  lg:mt-[10px] lg:min-w-[90%] min-w-fit"> <PillIcon className="mr-[10px] text-blue-600"/>Medicine List</button></Link>
+                    </div>
                 </div>
                 <button className="flex rounded-[5px] hover:bg-red-100 hover:border-red-300 cursor-pointer p-[10px] pl-[20px] pr-[20px]  lg:ml-auto lg:mr-auto lg:min-w-[90%]  lg:mt-[10px] text-red-500 w-fit" onClick={()=>{
                     logout()
@@ -56,7 +59,6 @@ export default function HospitalSidebarComponent(){
 
 
         <div className="p-4 border-t border-[#e8edf2] select-none lg:flex hidden">
-            
           <div className="flex items-center gap-3 ">
             <div className="w-11 h-11 rounded-full bg-blue-900 text-white flex items-center justify-center font-medium hover:bg-white duration-[0.3s] hover:text-blue-900 cursor-pointer border-2 border-blue-900">
               {userRole.displayname?.[0]}

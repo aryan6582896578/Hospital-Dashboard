@@ -134,4 +134,16 @@ export async function runDb(){
     } catch (error) {
         console.log("Error In Creating Appoinments Table",error)
     }
+    try {
+        console.log("Creating medlist Table")
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS medlist (
+                medid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                medname TEXT NOT NULL,
+                createdat TIMESTAMPTZ DEFAULT NOW()
+            );
+            `)
+    } catch (error) {
+        console.log("Error In Creating medlist Table",error)
+    }
 }

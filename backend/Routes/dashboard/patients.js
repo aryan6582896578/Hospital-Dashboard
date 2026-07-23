@@ -685,7 +685,7 @@ export default function Patientsroute(app){
 
             if (req.roleType === "admin") {
                 try {
-                    const appointments = await pool.query(`SELECT *FROM appointments WHERE hospitalname = $1 AND appointmentdate = $2 ORDER BY appointmenttime ASC`,[hospitalname, appointmentdate]);
+                    const appointments = await pool.query(`SELECT * FROM appointments WHERE hospitalname = $1 AND appointmentdate = $2 ORDER BY appointmenttime ASC`,[hospitalname, appointmentdate]);
                     return res.json({appointments: appointments.rows});
 
                 } catch (error) {
@@ -767,5 +767,46 @@ export default function Patientsroute(app){
             });
         }
     });
+    router.post('/addmedicine',checkJwt, async(req, res) => {
+        const medname = req.body.name;
+        if(req.validUser && medname && req.roleType === "doctor"){
+            try {
+                const addmed = await pool.query(`INSERT INTO medlist(medname) VALUES($1) RETURNING *`,[medname])
+                if (addmed.rowCount === 1) {
+                    return res.json({status: "medAdded"});
+                }
+                return res.json({status: "medNotAdded"});
+                }
+            catch (error) {
+                console.log("error in add appoinment",error)
+            }
+        }else{
+            res.json({status:"invalidUser"})
+        }
+    })
+    router.get('/getmedicinelist',checkJwt, async(req, res) => {
+        if(req.validUser && (req.roleType === "doctor" || req.roleType === "nurse" || req.roleType === "admin")){
+            const medlist = await pool.query(`SELECT * FROM medlist`)
+            return res.json({medlist:medlist.rows})
+        }else{
+            res.json({status:"invalidUser"})
+        }
+    })
+    
+    router.delete('/deletemedicine/:medicinename',checkJwt, async(req, res) => {
+        const medname = req.params.medicinename
+        if(req.validUser && req.roleType === "doctor"){
+            const medlist = await pool.query(`DELETE FROM medlist WHERE medid=$1 RETURNING *`,[medname])
+            if(medlist.rowCount ===1){
+                return res.send("deleted")
+            }else{
+                return res.send("Notdeleted")
+            }
+            
+        }else{
+            res.json({status:"invalidUser"})
+        }
+  
+    })
     return router;
 }

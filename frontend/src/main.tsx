@@ -15,6 +15,7 @@ import { FinancePage } from "./components/DashboardComponents/FinancePage.tsx";
 import { PaitentPage } from "./components/DashboardComponents/PaitentPage.tsx";
 import PatientProfilePage from "./components/DashboardComponents/PatientProfilePage.tsx";
 import HospitalAuthPage from "./components/DashboardComponents/HospitalAuthPage.tsx";
+import { MedicineList } from "./components/DashboardComponents/MedicineList.tsx";
 
 
 const router = createBrowserRouter([
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
     children: [
       {path:":hospitalname",Component: HospitalPage},
       {path:":hospitalname/finance",Component: FinancePage},
+      {path:":hospitalname/MedicineList",Component: MedicineList},
       {path:":hospitalname/patients",Component:HospitalAuthPage,
         children: [
         {

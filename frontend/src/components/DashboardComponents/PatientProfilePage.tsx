@@ -398,7 +398,7 @@ function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultat
                                             updateMedication(index,"medicinename",e.target.value);
                                         }}
                                         className="border w-full h-[50px] rounded-[10px] bg-white text-[#64748b] outline-0 border-[#dbe4ee] p-[10px]"/>
-                                </div>
+                                                                    </div>
                                 <div className="mb-[15px] flex gap-3">
                                     <div className=" w-full">
                                         <div className="text-[#64748b] text-sm mb-[5px]">Duration</div>

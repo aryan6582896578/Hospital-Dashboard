@@ -13,3 +13,4 @@ export function verifyJWT(tokenJwt){
     const decodedValue=jwt.verify(tokenJwt,`${process.env.JWT_SECRET}`)
     return decodedValue
 }
+
