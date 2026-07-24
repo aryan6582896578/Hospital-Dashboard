@@ -1,5 +1,5 @@
 import {  useContext, useEffect, useState } from "react";
-import {  useParams } from "react-router";
+import {  Link, useParams } from "react-router";
 import axios from "axios";
 import { AlertCircle, NotepadText, Save, User, XIcon} from "lucide-react";
 import HospitalSidebarComponent from "./HospitalSidebarComponent";
@@ -10,20 +10,27 @@ export function HospitalPage(){
     today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
     const [searchDate,setsearchDate]=useState(today.toISOString().split("T")[0])
     const[appoinmentsData,setappoinmentsData]=useState<any[]>([]);
+    const[patientRecords,setpatientRecords]=useState<any[]>([]);
     const parms = useParams();
 
     async function getAppoinments(){
         const appoinments = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getappointments`,{params:{hospitalname:parms.hospitalname ,appointmentdate:searchDate},withCredentials: true})
         setappoinmentsData(appoinments.data.appointments)
     }
+    async function getPatientRecords(){
+        
+        const patientrecordslist = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getpatientlist`,{params:{hospitalname:parms.hospitalname },withCredentials: true})
+        setpatientRecords(patientrecordslist.data.patientlist)
+    }
 
     useEffect(() => {
         getAppoinments()
+        getPatientRecords()
     }, [searchDate])
         return(
         <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row">
             <HospitalSidebarComponent />
-            <AppointmentsPage setsearchDate={setsearchDate} searchDate={searchDate} appoinmentsData={appoinmentsData} getAppoinments={getAppoinments}/>
+            <AppointmentsPage setsearchDate={setsearchDate} searchDate={searchDate} appoinmentsData={appoinmentsData} getAppoinments={getAppoinments} patientRecords={patientRecords}/>
         </div>
             
         )
@@ -31,7 +38,7 @@ export function HospitalPage(){
 
 
 
-function AppointmentsPage({setsearchDate,searchDate,appoinmentsData,getAppoinments}:any){
+function AppointmentsPage({setsearchDate,searchDate,appoinmentsData,getAppoinments,patientRecords}:any){
     const [displayAddAppoinment,setdisplayAddAppoinment]=useState<boolean>(false);
     return(
         <div className="flex w-full flex-col overflow-y-auto h-dvh pb-[20px] overflow-x-hidden ">
@@ -41,26 +48,27 @@ function AppointmentsPage({setsearchDate,searchDate,appoinmentsData,getAppoinmen
                     </div>
                 </div>
                 <div className="flex flex-col ">
-                    <AddAppoinmentsComponent setdisplayAddAppoinment={setdisplayAddAppoinment} displayAddAppoinment={displayAddAppoinment} getAppoinments={getAppoinments} />
+                    <AddAppoinmentsComponent setdisplayAddAppoinment={setdisplayAddAppoinment} displayAddAppoinment={displayAddAppoinment} getAppoinments={getAppoinments} patientRecords={patientRecords} />
                     <ListAppoinmentsComponent setsearchDate={setsearchDate} searchDate={searchDate} appoinmentsData={appoinmentsData} getAppoinments={getAppoinments} setdisplayAddAppoinment={setdisplayAddAppoinment}/>
                 </div>
         </div>
     )
 }
 
-function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment,getAppoinments}:any){
+function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment,getAppoinments,patientRecords}:any){
 
     const parms=useParams();
-    const [appoinmentData,setappoinmentData]=useState<{name:string,phonenumber:string,age:string,gender:string,reason:string,status:string,date:string,time:string,hospitalname:string,}>({name:"",phonenumber:"",age:"",gender:"male",reason:"",status:"booked",date:"",time:"", hospitalname: parms.hospitalname ?? ""})
+    const [appoinmentData,setappoinmentData]=useState<{name:string,phonenumber:string,age:string,gender:string,reason:string,status:string,date:string,time:string,hospitalname:string,recordname:string,recordid:string}>({name:"",phonenumber:"",age:"",gender:"male",reason:"",status:"booked",date:"",time:"", hospitalname: parms.hospitalname ?? "",recordname:"",recordid:""})
     const [errorMessage,seterrorMessage]=useState<string>("");
     async function AddAppoinmentPost() {
+        // console.log(appoinmentData)
         const addPatient = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/patient/addappoinment`,appoinmentData,{ withCredentials: true });
         if(addPatient.data.status==="missingData"){
             console.log("missing data")
         }else if(addPatient.data.status==="appointmentCreated"){
             // getPatientList()
             setdisplayAddAppoinment(false);
-            setappoinmentData({...appoinmentData,name:"",phonenumber:"",age:"",gender:"male",reason:"",status:"booked",date:"",time:"", hospitalname: parms.hospitalname ?? ""})
+            setappoinmentData({...appoinmentData,name:"",phonenumber:"",age:"",gender:"male",reason:"",status:"booked",date:"",time:"", hospitalname: parms.hospitalname ?? "",recordname:"",recordid:""})
             getAppoinments()
         }else if(addPatient.data.status==="appointmentNotCreated"){
             seterrorMessage("internal server error contact admin")
@@ -77,7 +85,7 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment,g
                     <NotepadText/> Add Appoinment
                 </button>                
             </div>
-            {errorMessage && (<p className="text-xl text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{errorMessage}</p>)}
+            {errorMessage && (<p className="text-xl text-red-500 mt-1 flex items-center gap-1 ml-[10px]"><AlertCircle className="w-4 h-4" />{errorMessage}</p>)}
             {displayAddAppoinment &&
             <div className="mt-[20px] border-t border-[#dbe4ee] p-[20px] ">
                 <form onSubmit={(e)=>{
@@ -180,6 +188,27 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment,g
                             </div>
                         </div>
                     </div>
+                    <div className="flex gap-2  mb-[20px] flex-col lg:flex-row">
+                        <div className="select-none flex flex-col mr-[10px] cursor-pointer w-full">
+                            <div className="text-[#64748b] text-sm mb-2 ml-[1px] select-none">Patient Records (Name) </div>
+                            <div className="flex relative select-none">
+                                    <select value={appoinmentData.recordid} onChange={(e) =>{
+                                       const name = patientRecords.find((a:any)=>a.patientid===e.target.value)
+                                        setappoinmentData({...appoinmentData,recordname:name.fullname})
+                                        setappoinmentData({...appoinmentData,recordid:e.target.value})
+                                    }
+                                        }
+                                        className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] outline-none cursor-pointer ">
+                                            <option value="" ></option>
+                                            {patientRecords.map((x:any)=>{
+                                                return <option value={x.patientid} key={x.patientid}>{x.fullname}</option>
+                                                    
+                                            })}
+                                        </select>
+                            </div>
+                        </div>
+
+                    </div>
                     <div className="flex flex-col sm:flex-row gap-3 mt-8">
                     <button type="submit" className=" w-full lg:w-fit pl-[20px] pr-[20px] min-h-[50px] rounded-xl bg-[#1e3a5f] hover:bg-[#245188] text-white transition-all flex items-center justify-center gap-2 font-medium cursor-pointer">
                            <Save/>
@@ -187,7 +216,7 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment,g
                     </button>
 
                     <button onClick={() => {
-                        setappoinmentData({...appoinmentData,name:"",phonenumber:"",age:"",gender:"male",reason:"",status:"booked",date:"",time:"", hospitalname: parms.hospitalname ?? ""})
+                        setappoinmentData({...appoinmentData,name:"",phonenumber:"",age:"",gender:"male",reason:"",status:"booked",date:"",time:"", hospitalname: parms.hospitalname ?? "",recordname:"",recordid:""})
                         setdisplayAddAppoinment(false)
                         
                         }} className="h-12 px-5 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-red-100 hover:border-red-100 transition-all font-medium cursor-pointer">Cancel</button>
@@ -247,63 +276,67 @@ function ListAppoinmentsDataComponent({ x,getAppoinments,setdisplayAddAppoinment
     }
 
     return (
-        <div className="bg-white m-[20px] mt-0 mb-0 p-[20px]  border-[#e8edf2] border   hover:bg-blue-100  flex justify-between flex-col lg:flex-row text-left lg:text-center gap-4">
+        <div className="">
+            <Link to={`patients/${x.recordid}`}>
+                <div className="bg-white m-[20px] mt-0 mb-0 p-[20px]  border-[#e8edf2] border   hover:bg-blue-100  flex justify-between flex-col lg:flex-row text-left lg:text-center gap-4 cursor-pointer">
+                    
+                    <div className="flex w-full ">
+                        <div className="w-9 h-9 rounded-full bg-blue-300 text-blue-900 flex items-center justify-center font-semibold cursor-pointer mt-auto mb-auto">{x.name[0]}</div>
+                        <div className="ml-[20px] mt-auto mb-auto ">{x.name}</div>
+                    </div>
+                    <div className="w-full mt-auto mb-auto">
+                        {x.phonenumber}
+                    </div>
+                    <div className="w-full mt-auto mb-auto">
+                        <div className="">{new Date(x.appointmentdate).toLocaleString("en-IN", {timeZone: "Asia/Kolkata",day: "2-digit",month: "short",year: "numeric"})}</div>
+                        <div className="text-[#47484a]">{x.appointmenttime}</div>
+                    </div>
+                        <div className="w-full mt-auto mb-auto">
+                            {isDisabled ? (<div className="flex"><div className="bg-green-100 text-black p-[5px] pl-[10px] pr-[10px] rounded-[10px] ml-auto mr-auto uppercase">{x.status}</div></div>) 
+                            : (
+                                <div className="mt-4 flex gap-4">
+                                    <div>
+                                        <select value={appointmentData.status} onChange={(e) =>setAppointmentData({...appointmentData,status: e.target.value})} className="border rounded p-2 outline-none">
+                                            <option value="booked">Booked</option>
+                                            <option value="completed">Completed</option>
+                                            <option value="cancelled">Cancelled</option>
+                                        </select>
+                                    </div>
 
-            <div className="flex w-full ">
-                <div className="w-9 h-9 rounded-full bg-blue-300 text-blue-900 flex items-center justify-center font-semibold cursor-pointer mt-auto mb-auto">{x.name[0]}</div>
-                <div className="ml-[20px] mt-auto mb-auto ">{x.name}</div>
-            </div>
-            <div className="w-full mt-auto mb-auto">
-                {x.phonenumber}
-            </div>
-            <div className="w-full mt-auto mb-auto">
-                <div className="">{new Date(x.appointmentdate).toLocaleString("en-IN", {timeZone: "Asia/Kolkata",day: "2-digit",month: "short",year: "numeric"})}</div>
-                <div className="text-[#47484a]">{x.appointmenttime}</div>
-            </div>
-                <div className="w-full mt-auto mb-auto">
-                    {isDisabled ? (<div className="flex"><div className="bg-green-100 text-black p-[5px] pl-[10px] pr-[10px] rounded-[10px] ml-auto mr-auto uppercase">{x.status}</div></div>) 
-                    : (
-                        <div className="mt-4 flex gap-4">
-                            <div>
-                                <select value={appointmentData.status} onChange={(e) =>setAppointmentData({...appointmentData,status: e.target.value})} className="border rounded p-2 outline-none">
-                                    <option value="booked">Booked</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="cancelled">Cancelled</option>
-                                </select>
-                            </div>
-
+                                </div>
+                            )}
                         </div>
-                    )}
+                        <div className="w-full flex">
+
+                                {(userRole.roleType === "doctor" || userRole.roleType === "nurse") && (
+
+                                        isDisabled ? (
+                                            <div className="ml-auto mr-auto">
+                                                <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-green-200 ml-auto mr-auto cursor-pointer" onClick={() => setIsDisabled(false)}>
+                                                    Edit
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="flex gap-2 ml-auto">
+                                                <button className=" w-full h-fit lg:w-fit pl-[20px] pr-[20px] min-h-[40px] rounded-xl bg-[#1e3a5f] hover:bg-[#245188] text-white transition-all flex items-center justify-center gap-2 font-medium cursor-pointer" onClick={updateAppointment}>
+                                                    <Save/>
+                                                </button>
+
+                                                <button
+                                                    className="w-full h-fit lg:w-fit pl-[20px] pr-[20px] min-h-[40px] rounded-xl bg-white hover:bg-red-300 text-black transition-all flex items-center justify-center gap-2 font-medium cursor-pointer"
+                                                    onClick={() => {
+                                                        setAppointmentData({ appointmentid: x.appointmentid, status: x.status,reason: x.reason || "",hospitalname: parms.hospitalname ?? ""});
+                                                        setIsDisabled(true);
+                                                    }}>
+                                                    <XIcon/>
+                                                </button>
+                                            </div>
+                                        )
+                                )}
+                        </div>
+
                 </div>
-                <div className="w-full flex">
-
-                        {(userRole.roleType === "doctor" || userRole.roleType === "nurse") && (
-
-                                isDisabled ? (
-                                    <div className="ml-auto mr-auto">
-                                        <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-green-200 ml-auto mr-auto cursor-pointer" onClick={() => setIsDisabled(false)}>
-                                            Edit
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="flex gap-2 ml-auto">
-                                        <button className=" w-full h-fit lg:w-fit pl-[20px] pr-[20px] min-h-[40px] rounded-xl bg-[#1e3a5f] hover:bg-[#245188] text-white transition-all flex items-center justify-center gap-2 font-medium cursor-pointer" onClick={updateAppointment}>
-                                            <Save/>
-                                        </button>
-
-                                        <button
-                                            className="w-full h-fit lg:w-fit pl-[20px] pr-[20px] min-h-[40px] rounded-xl bg-white hover:bg-red-300 text-black transition-all flex items-center justify-center gap-2 font-medium cursor-pointer"
-                                            onClick={() => {
-                                                setAppointmentData({ appointmentid: x.appointmentid, status: x.status,reason: x.reason || "",hospitalname: parms.hospitalname ?? ""});
-                                                setIsDisabled(true);
-                                            }}>
-                                            <XIcon/>
-                                        </button>
-                                    </div>
-                                )
-                        )}
-                </div>
-
+            </Link>
         </div>
     );
 }

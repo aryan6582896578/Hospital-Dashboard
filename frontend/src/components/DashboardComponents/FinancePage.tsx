@@ -22,17 +22,11 @@ export function FinancePage(){
         getConsultations()
     }, [])
     return(
-
         <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row overflow-hidden">
-
             <HospitalSidebarComponent />
             <FinanceDataComponent consultationData={consultationData} getConsultations={getConsultations} paymentData={paymentData}/>
-        
-        </div>
-            
+        </div>       
     )
-    
-
 }
 
 function FinanceDataComponent({consultationData,getConsultations,paymentData}:any){

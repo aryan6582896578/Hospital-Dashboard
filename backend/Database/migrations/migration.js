@@ -125,6 +125,8 @@ export async function runDb(){
                     CHECK (status IN ('booked', 'completed', 'cancelled', 'noshow','ongoing')),
                 appointmentdate DATE NOT NULL,
                 appointmenttime TIME NOT NULL,
+                recordname TEXT,
+                recordid TEXT,
                 createdby VARCHAR(100) NOT NULL,
                 createdat TIMESTAMPTZ DEFAULT NOW(),
                 updatedat TIMESTAMPTZ DEFAULT NOW()

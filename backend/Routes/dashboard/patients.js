@@ -650,15 +650,17 @@ export default function Patientsroute(app){
         const appointmenttime = req.body.time;
         const hospitalname = req.body.hospitalname;
         const createdby = req.username;
-
+        const recordname= req.body.recordname;
+        const recordid = req.body.recordid;
+        
         if(req.validUser && hospitalname && name && gender &&appointmentdate &&appointmenttime &&(req.roleType === "doctor" || req.roleType === "nurse")){
             try {
                 const hasAccess = await pool.query(`SELECT * FROM hospitalinfo WHERE name=$2 AND ($1 = ANY(doctorlist) OR $1 = ANY(nurselist))`,[req.username,hospitalname]);
                 if(hasAccess.rowCount===1){
-                    try {
-                    const addAppointment = await pool.query(`INSERT INTO appointments (appointmentid,hospitalname,name,phonenumber,age,gender,reason,status,appointmentdate,appointmenttime,createdby)
-                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)RETURNING *`,
-                    [appointmentid,hospitalname,name,phonenumber,age,gender,reason,status,appointmentdate, appointmenttime,createdby]
+                    try {               
+                    const addAppointment = await pool.query(`INSERT INTO appointments (appointmentid,hospitalname,name,phonenumber,age,gender,reason,status,appointmentdate,appointmenttime,createdby,recordname,recordid)
+                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)RETURNING *`,
+                    [appointmentid,hospitalname,name,phonenumber,age,gender,reason,status,appointmentdate, appointmenttime,createdby,recordname,recordid]
                 );
 
                 if (addAppointment.rowCount === 1) {
