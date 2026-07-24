@@ -329,9 +329,15 @@ function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultat
             return {...prev,medications: updated};
         });
     }
-
+    const [medicineList,setmedicineList]=useState<any[]>([])
+    async function getMedList(){
+        const medList = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getmedicinelist`,{withCredentials: true})
+        setmedicineList(medList.data.medlist)
+        // console.log(medList.data.medlist[0].medname)
+    }
     useEffect(() => {
         getPatientConsultation()
+        getMedList()
     }, [])
     
 
@@ -391,14 +397,25 @@ function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultat
 
                                 <div className="mb-[15px]">
                                     <div className="text-[#64748b] text-sm mb-[5px]">Medicine Name</div>
-
-                                    <input type="text" placeholder="Enter medicine name..." value={med.medicinename}
+                                    {/* <input type="text" placeholder="Enter medicine name..." value={med.medicinename}
                                         onChange={(e) => {
                                             seterrorMessage({...errorMessage,meds:""})
                                             updateMedication(index,"medicinename",e.target.value);
                                         }}
-                                        className="border w-full h-[50px] rounded-[10px] bg-white text-[#64748b] outline-0 border-[#dbe4ee] p-[10px]"/>
-                                                                    </div>
+                                        className="border w-full h-[50px] rounded-[10px] bg-white text-[#64748b] outline-0 border-[#dbe4ee] p-[10px]"/> */}
+                                        <select value={med.medicinename} onChange={(e) =>
+                                            updateMedication(index,"medicinename",e.target.value)
+                                            }
+                                            
+                                            className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] outline-none cursor-pointer ">
+                                                <option value="" ></option>
+                                                {medicineList.map((x:any)=>{
+                                                    return <option value={x.medname} key={x.medid}>{x.medname}</option>
+                                                    
+                                                })}
+                                        </select>
+
+                                </div>
                                 <div className="mb-[15px] flex gap-3">
                                     <div className=" w-full">
                                         <div className="text-[#64748b] text-sm mb-[5px]">Duration</div>
@@ -461,9 +478,9 @@ function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultat
                         Add Medicine
                     </button>
                 </div>
-                <div className="bg-white p-[20px] mt-[20px] rounded-[10px]">
+                <div className="bg-white p-[20px] mt-[20px] rounded-[10px] ">
                     <div className="text-[30px] mb-[10px]">Payment</div>
-                    <div className="flex">
+                    <div className="flex flex-col md:flex-row">
                         <div className="text-[#64748b] mr-[20px]">
                             Amount
                             <input type="number" step="50" maxLength={10} className={`resize-none border break-all w-full  rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative text-[#64748b] outline-0 border-[#dbe4ee] p-[10px]`} onChange={(e:any)=>{

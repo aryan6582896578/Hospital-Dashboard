@@ -13,26 +13,17 @@ export function HospitalPage(){
     const parms = useParams();
 
     async function getAppoinments(){
-        
         const appoinments = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getappointments`,{params:{hospitalname:parms.hospitalname ,appointmentdate:searchDate},withCredentials: true})
-        
         setappoinmentsData(appoinments.data.appointments)
-        console.log(appoinments.data.appointments)
     }
 
     useEffect(() => {
         getAppoinments()
     }, [searchDate])
-
-    
         return(
-
         <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row">
-
             <HospitalSidebarComponent />
             <AppointmentsPage setsearchDate={setsearchDate} searchDate={searchDate} appoinmentsData={appoinmentsData} getAppoinments={getAppoinments}/>
-            
-
         </div>
             
         )
@@ -44,8 +35,10 @@ function AppointmentsPage({setsearchDate,searchDate,appoinmentsData,getAppoinmen
     const [displayAddAppoinment,setdisplayAddAppoinment]=useState<boolean>(false);
     return(
         <div className="flex w-full flex-col overflow-y-auto h-dvh pb-[20px] overflow-x-hidden ">
-                <div className="min-h-20 border-b bg-white border-[#e8edf2] px-2 sm:px-4 lg:px-8 py-4 lg:flex flex-col lg:flex-row lg:items-center hidden">
-
+                <div className="min-h-20 border-b bg-white border-[#e8edf2] px-2 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center  justify-end text-[25px] font-semibold">
+                    <div className="bg-blue-900 text-white pl-[20px] pr-[20px] rounded-[5px] w-fit">
+                        Appoinments
+                    </div>
                 </div>
                 <div className="flex flex-col ">
                     <AddAppoinmentsComponent setdisplayAddAppoinment={setdisplayAddAppoinment} displayAddAppoinment={displayAddAppoinment} getAppoinments={getAppoinments} />
@@ -78,7 +71,7 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment,g
     return (
         <div className=" bg-white  m-[5px] mt-[10px] lg:m-[20px] rounded-[10px] shadow-2xs border-[#e8edf2] border-1 h-fit">
             <div className="flex m-[20px]">
-                <button className="flex-1 lg:flex-none min-h-11 px-5 rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white transition-all flex items-center justify-center gap-2 font-semibold cursor-pointer" onClick={()=>{
+                <button className=" w-fit lg:flex-none min-h-11 px-5 rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white transition-all flex items-center justify-center gap-2 font-semibold cursor-pointer" onClick={()=>{
                     setdisplayAddAppoinment(true)
                 }}> 
                     <NotepadText/> Add Appoinment

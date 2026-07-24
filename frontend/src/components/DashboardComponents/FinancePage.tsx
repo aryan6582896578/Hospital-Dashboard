@@ -15,7 +15,7 @@ export function FinancePage(){
         const consultations = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/patient/getallconsultations`,{params:{hospitalname:parms.hospitalname,patientid:parms.patientid},withCredentials: true})
        setconsultationData(consultations.data.consultationDataAll)
        setpaymentData(consultations.data.payments)
-       console.log(consultations.data.payments)
+    //    console.log(consultations.data.payments)
     }
 
     useEffect(() => {
