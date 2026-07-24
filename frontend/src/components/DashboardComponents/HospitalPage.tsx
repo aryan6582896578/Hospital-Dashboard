@@ -1,7 +1,7 @@
 import {  useContext, useEffect, useState } from "react";
 import {  Link, useParams } from "react-router";
 import axios from "axios";
-import { AlertCircle, NotepadText, Save, User, XIcon} from "lucide-react";
+import { AlertCircle, FolderOpenDotIcon, NotepadText, Save, User, XIcon} from "lucide-react";
 import HospitalSidebarComponent from "./HospitalSidebarComponent";
 import { UserRoleContext } from "../AuthPage";
 
@@ -62,7 +62,7 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment,g
     const [appoinmentData,setappoinmentData]=useState<{name:string,phonenumber:string,age:string,gender:string,reason:string,status:string,date:string,time:string,hospitalname:string,recordname:string,recordid:string}>({name:"",phonenumber:"",age:"",gender:"male",reason:"",status:"booked",date:"",time:"", hospitalname: parms.hospitalname ?? "",recordname:"",recordid:""})
     const [errorMessage,seterrorMessage]=useState<string>("");
     async function AddAppoinmentPost() {
-        // console.log(appoinmentData)
+        console.log(appoinmentData)
         const addPatient = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/patient/addappoinment`,appoinmentData,{ withCredentials: true });
         if(addPatient.data.status==="missingData"){
             console.log("missing data")
@@ -205,7 +205,7 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment,g
                                                 return <option value={x.patientid} key={x.patientid}>{x.fullname}</option>
                                                     
                                             })}
-                                        </select>
+                                    </select>
                             </div>
                         </div>
 
@@ -245,6 +245,7 @@ function ListAppoinmentsComponent({setsearchDate,searchDate,appoinmentsData,getA
                     <div className="w-full">Date & Time</div>
                     <div className="w-full">Status</div>
                     <div className="w-full">Action</div>
+                    <div className="w-full">Patient</div>
                 </div>
                 {appoinmentsData?.map((x:any,y:any)=>{
                     return <ListAppoinmentsDataComponent x={x} key={y} getAppoinments={getAppoinments} setdisplayAddAppoinment={setdisplayAddAppoinment}/>
@@ -275,23 +276,21 @@ function ListAppoinmentsDataComponent({ x,getAppoinments,setdisplayAddAppoinment
             console.log(error);
         }
     }
-
     return (
-        <div className="">
-            <Link to={`patients/${x.recordid}`}>
                 <div className="bg-white m-[20px] mt-0 mb-0 p-[20px]  border-[#e8edf2] border   hover:bg-blue-100  flex justify-between flex-col lg:flex-row text-left lg:text-center gap-4 cursor-pointer">
                     
-                    <div className="flex w-full ">
-                        <div className="w-9 h-9 rounded-full bg-blue-300 text-blue-900 flex items-center justify-center font-semibold cursor-pointer mt-auto mb-auto">{x.name[0]}</div>
-                        <div className="ml-[20px] mt-auto mb-auto ">{x.name}</div>
-                    </div>
-                    <div className="w-full mt-auto mb-auto">
-                        {x.phonenumber}
-                    </div>
-                    <div className="w-full mt-auto mb-auto">
-                        <div className="">{new Date(x.appointmentdate).toLocaleString("en-IN", {timeZone: "Asia/Kolkata",day: "2-digit",month: "short",year: "numeric"})}</div>
-                        <div className="text-[#47484a]">{x.appointmenttime}</div>
-                    </div>
+                        <div className="flex w-full ">
+                            <div className="w-9 h-9 rounded-full bg-blue-300 text-blue-900 flex items-center justify-center font-semibold cursor-pointer mt-auto mb-auto">{x.name[0]}</div>
+                            <div className="ml-[20px] mt-auto mb-auto ">{x.name}</div>
+                        </div>
+                        <div className="w-full mt-auto mb-auto">
+                            {x.phonenumber}
+                        </div>
+                        <div className="w-full mt-auto mb-auto">
+                            <div className="">{new Date(x.appointmentdate).toLocaleString("en-IN", {timeZone: "Asia/Kolkata",day: "2-digit",month: "short",year: "numeric"})}</div>
+                            <div className="text-[#47484a]">{x.appointmenttime}</div>
+                        </div>
+                    
                         <div className="w-full mt-auto mb-auto">
                             {isDisabled ? (<div className="flex"><div className="bg-green-100 text-black p-[5px] pl-[10px] pr-[10px] rounded-[10px] ml-auto mr-auto uppercase">{x.status}</div></div>) 
                             : (
@@ -335,9 +334,17 @@ function ListAppoinmentsDataComponent({ x,getAppoinments,setdisplayAddAppoinment
                                         )
                                 )}
                         </div>
+                        <div className="flex w-full">
+                            <div className="ml-auto mr-auto">
+                                <Link to={`patients/${x.recordid}`} >
+                                    <button className="h-10 px-4 rounded-[10px] border text-white border-[#dbe4ee] bg-blue-500 hover:bg-blue-600 ml-auto mr-auto cursor-pointer">
+                                        <FolderOpenDotIcon/>
+                                        {x.recordname}
+                                    </button>
+                                </Link>
+                            </div>
+                        </div>
 
                 </div>
-            </Link>
-        </div>
     );
 }

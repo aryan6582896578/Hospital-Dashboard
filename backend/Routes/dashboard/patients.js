@@ -722,7 +722,6 @@ export default function Patientsroute(app){
     router.post('/updateappointment', checkJwt, async (req, res) => {
 
         const { appointmentid,hospitalname,status,reason} = req.body;
-        console.log(req.body)
 
         if (req.validUser &&(req.roleType === "doctor" || req.roleType === "nurse") && appointmentid && hospitalname) {
             try {
