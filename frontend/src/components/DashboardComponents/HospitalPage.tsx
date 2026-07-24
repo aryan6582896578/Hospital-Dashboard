@@ -40,6 +40,7 @@ export function HospitalPage(){
 
 function AppointmentsPage({setsearchDate,searchDate,appoinmentsData,getAppoinments,patientRecords}:any){
     const [displayAddAppoinment,setdisplayAddAppoinment]=useState<boolean>(false);
+    const userRole = useContext<any>(UserRoleContext);
     return(
         <div className="flex w-full flex-col overflow-y-auto h-dvh pb-[20px] overflow-x-hidden ">
                 <div className="min-h-20 border-b bg-white border-[#e8edf2] px-2 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center  justify-end text-[25px] font-semibold">
@@ -48,7 +49,7 @@ function AppointmentsPage({setsearchDate,searchDate,appoinmentsData,getAppoinmen
                     </div>
                 </div>
                 <div className="flex flex-col ">
-                    <AddAppoinmentsComponent setdisplayAddAppoinment={setdisplayAddAppoinment} displayAddAppoinment={displayAddAppoinment} getAppoinments={getAppoinments} patientRecords={patientRecords} />
+                {userRole.roleType!="admin"? <AddAppoinmentsComponent setdisplayAddAppoinment={setdisplayAddAppoinment} displayAddAppoinment={displayAddAppoinment} getAppoinments={getAppoinments} patientRecords={patientRecords} />:""}
                     <ListAppoinmentsComponent setsearchDate={setsearchDate} searchDate={searchDate} appoinmentsData={appoinmentsData} getAppoinments={getAppoinments} setdisplayAddAppoinment={setdisplayAddAppoinment}/>
                 </div>
         </div>

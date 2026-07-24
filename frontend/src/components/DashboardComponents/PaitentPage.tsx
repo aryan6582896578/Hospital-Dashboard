@@ -1,8 +1,9 @@
-import {useEffect, useMemo, useState } from "react";
+import {useContext, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router";
 import axios from "axios";
 import { AlertCircle, Plus, Search, User, User2Icon, X} from "lucide-react";
 import HospitalSidebarComponent from "./HospitalSidebarComponent";
+import { UserRoleContext } from "../AuthPage";
 
 export function PaitentPage(){
     const[displayAddPaitent,setdisplayAddPatient]=useState<boolean>(false);
@@ -34,9 +35,8 @@ export function PaitentPage(){
 
 function PatientListComponent({parms,patientList,getPatientList,setdisplayAddPatient}:any){
     const[searchValue,setsearchValue]=useState<string>("");
-
     const[isEmptySearch,setisEmptySearch]=useState<boolean>(false);
-
+    const userRole = useContext<any>(UserRoleContext);
     useEffect(() => {
       getPatientList()
     }, [])
@@ -73,7 +73,7 @@ function PatientListComponent({parms,patientList,getPatientList,setdisplayAddPat
                 <button onClick={() => {
                     setdisplayAddPatient(true);
                 }}
-                className="flex-1 lg:flex-none min-h-11 px-5 rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white transition-all flex items-center justify-center gap-2 font-semibold cursor-pointer">
+                className={`flex-1 lg:flex-none min-h-11 px-5 rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white transition-all  items-center justify-center gap-2 font-semibold cursor-pointer ${userRole.roleType!="admin"?"flex":"hidden"}`}>
                 <Plus className="w-5 h-5 text-white " />
                 Add Patient
                 </button>
