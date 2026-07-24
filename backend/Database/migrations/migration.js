@@ -9,7 +9,7 @@ export async function runDb(){
             username VARCHAR(20) NOT NULL UNIQUE PRIMARY KEY,
             password VARCHAR(50) NOT NULL,
             role VARCHAR(20) NOT NULL,
-            displayname VARCHAR(20) NOT NULL,
+            displayname VARCHAR(30) NOT NULL,
             created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
             )
         `)
@@ -22,8 +22,8 @@ export async function runDb(){
         await pool.query(`
             CREATE TABLE IF NOT EXISTS hospitalinfo (
             hospitalidinternal UUID DEFAULT gen_random_uuid() UNIQUE,
-            name VARCHAR(30) NOT NULL UNIQUE PRIMARY KEY,
-            displayname VARCHAR(20) NOT NULL,
+            name VARCHAR(100) NOT NULL UNIQUE PRIMARY KEY,
+            displayname VARCHAR(100) NOT NULL,
             doctorList TEXT[] DEFAULT '{}',
             nurseList TEXT[] DEFAULT '{}',
             created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL

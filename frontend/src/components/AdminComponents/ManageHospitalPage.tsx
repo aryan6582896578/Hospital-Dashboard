@@ -339,7 +339,7 @@ function AddHospitalComponent({getHospitalList,setdisplayAddHospital}: Props) {
             <div>
                 <div className="text-[#64748b] text-sm mb-[10px] ml-[1px]">Hospital Name</div>
 
-                <input type="text" maxLength={30} className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] px-4 outline-none" onChange={(e) => {
+                <input type="text" maxLength={60} className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] px-4 outline-none" onChange={(e) => {
                     seterrorMessage({...errorMessage,name:""})
                     sethospitalData({...hospitalData,name: e.target.value});
                 }}/>
@@ -349,7 +349,7 @@ function AddHospitalComponent({getHospitalList,setdisplayAddHospital}: Props) {
             <div>
                 <div className="text-[#64748b] text-sm mb-[10px] ml-[1px]">Display Name</div>
 
-                <input type="text" maxLength={30} className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] px-4 outline-none" onChange={(e) => {
+                <input type="text" maxLength={60} className="w-full h-12 rounded-[10px] bg-[#f8fafc] border border-[#dbe4ee] px-4 outline-none" onChange={(e) => {
                     seterrorMessage({...errorMessage,displayName:""}) 
                     sethospitalData({...hospitalData,displayName: e.target.value,});
                 }}/>
