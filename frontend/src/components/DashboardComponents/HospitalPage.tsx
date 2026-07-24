@@ -165,19 +165,20 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment,g
                     </div>
                     <div className="flex gap-2  mb-[20px] flex-col lg:flex-row">
                         <div className="select-none flex flex-col mr-[10px] cursor-pointer w-full">
-                            <div className="text-[#64748b] text-sm mb-2 ml-[1px] select-none">Date</div>
+                            <div className="text-[#64748b] text-sm mb-2 ml-[1px] select-none">Date <span className="text-red-500">*</span></div>
                             <div className="flex relative select-none">
                                 <input type="date" maxLength={5} className={`border w-full h-[50px] rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative text-[#64748b] outline-0 border-[#dbe4ee] p-[5px] cursor-pointer`} onChange={(e:any)=>{
                                     setappoinmentData({...appoinmentData,date:e.target.value});
-                                }} value={appoinmentData.date}/>
+                                }} value={appoinmentData.date} placeholder="Select Date"/>
                             </div>
                         </div>
                         <div className="select-none flex flex-col mr-[10px] w-full">
-                            <div className="text-[#64748b] text-sm mb-2 ml-[1px] select-none">Time</div>
+                            <div className="text-[#64748b] text-sm mb-2 ml-[1px] select-none">Time <span className="text-red-500">*</span></div>
+                            
                             <div className="flex relative select-none">
                                 <input type="time" maxLength={15} className={`border w-full h-[50px] rounded-[10px] bg-[#f8fafc] p-[5px] hover:text-[#3e4856] relative  text-[#64748b] outline-0 border-[#dbe4ee]`} onChange={(e:any)=>{
                                     setappoinmentData({...appoinmentData,time:e.target.value});
-                                }} value={appoinmentData.time} />
+                                }} value={appoinmentData.time} placeholder="Select Time" />
                             </div>
                         </div>
                         <div className="select-none flex flex-col mr-[10px] w-full">
