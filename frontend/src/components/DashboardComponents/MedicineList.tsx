@@ -28,35 +28,37 @@ export function MedicineList(){
     }, [])
     return(
 
-        <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row overflow-hidden">
+        <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row overflow-y-auto">
+            <div className="flex w-full flex-col lg:flex-row">
 
-            <HospitalSidebarComponent />
-            <div className="flex w-full flex-col overflow-y-auto h-dvh pb-[20px] ">
-                <div className="min-h-20 border-b bg-white border-[#e8edf2] px-2 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center  justify-end text-[25px] font-semibold">
-                    <div className="bg-blue-900 text-white pl-[20px] pr-[20px] rounded-[5px] w-fit">
-                        Medicine List
+                <HospitalSidebarComponent />
+                <div className="flex w-full flex-col overflow-y-auto h-dvh pb-[20px] ">
+                    <div className="min-h-20 border-b bg-white border-[#e8edf2] px-2 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center  justify-end text-[25px] font-semibold">
+                        <div className="bg-blue-900 text-white pl-[20px] pr-[20px] rounded-[5px] w-fit">
+                            Medicine List
+                        </div>
                     </div>
-                </div>
-                <div className="">
-                    <div className={`bg-white m-[10px] p-[20px] rounded-[10px] ${userRole.roleType=="doctor" ?"flex":"hidden"} `}>
-                        <AddMedComponent getMedList={getMedList}/>
-                    </div>
-                    
-                    <div className="mt-[10px]">
-                        <div className="bg-blue-900 m-[10px] p-[20px] rounded-[10px] flex justify-between uppercase font-semibold text-white ">Medicine Name</div>
-                            {medicineList?.map((x:any)=>{
-                                return <div className="bg-white m-[10px] mt-0 p-[20px] rounded-[10px] flex justify-between" key={x.medid} >
-                                    <div className="">
-                                        <div className=""> {x.medname}</div>
-                                    </div>
+                    <div className="">
+                        <div className={`bg-white m-[10px] p-[20px] rounded-[10px] ${userRole.roleType=="doctor" ?"flex":"hidden"} `}>
+                            <AddMedComponent getMedList={getMedList}/>
+                        </div>
+                        
+                        <div className="mt-[10px]">
+                            <div className="bg-blue-900 m-[10px] p-[20px] rounded-[10px] flex justify-between uppercase font-semibold text-white ">Medicine Name</div>
+                                {medicineList?.map((x:any)=>{
+                                    return <div className="bg-white m-[10px] mt-0 p-[20px] rounded-[10px] flex justify-between" key={x.medid} >
+                                        <div className="">
+                                            <div className=""> {x.medname}</div>
+                                        </div>
 
-                                    <div className={`${userRole.roleType==="doctor"?"flex":"hidden"}`}>
-                                        <button onClick={()=>{
-                                           deleteMed(x.medid) 
-                                        }} ><TrashIcon className="text-white bg-red-500 cursor-pointer hover:bg-red-600  w-[30px] h-[30px] p-[5px] rounded-[5px]"/></button>
+                                        <div className={`${userRole.roleType==="doctor"?"flex":"hidden"}`}>
+                                            <button onClick={()=>{
+                                            deleteMed(x.medid) 
+                                            }} ><TrashIcon className="text-white bg-red-500 cursor-pointer hover:bg-red-600  w-[30px] h-[30px] p-[5px] rounded-[5px]"/></button>
+                                        </div>
                                     </div>
-                                </div>
-                            })}
+                                })}
+                        </div>
                     </div>
                 </div>
             </div>     
