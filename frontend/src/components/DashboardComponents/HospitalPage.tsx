@@ -28,9 +28,11 @@ export function HospitalPage(){
         getPatientRecords()
     }, [searchDate])
         return(
-        <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row">
+        <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row overflow-y-auto">
+            <div className="flex w-full flex-col lg:flex-row">
             <HospitalSidebarComponent />
             <AppointmentsPage setsearchDate={setsearchDate} searchDate={searchDate} appoinmentsData={appoinmentsData} getAppoinments={getAppoinments} patientRecords={patientRecords}/>
+            </div>
         </div>
             
         )
@@ -42,7 +44,7 @@ function AppointmentsPage({setsearchDate,searchDate,appoinmentsData,getAppoinmen
     const [displayAddAppoinment,setdisplayAddAppoinment]=useState<boolean>(false);
     const userRole = useContext<any>(UserRoleContext);
     return(
-        <div className="flex w-full flex-col overflow-y-auto h-dvh pb-[20px] overflow-x-hidden ">
+        <div className="flex w-full flex-col lg:overflow-y-auto lg:h-dvh pb-[20px] overflow-x-hidden ">
                 <div className="min-h-20 border-b bg-white border-[#e8edf2] px-2 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center  justify-end text-[25px] font-semibold">
                     <div className="bg-blue-900 text-white pl-[20px] pr-[20px] rounded-[5px] w-fit">
                         Appoinments
@@ -86,7 +88,7 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment,g
                     <NotepadText/> Add Appoinment
                 </button>                
             </div>
-            {errorMessage && (<p className="text-xl text-red-500 mt-1 flex items-center gap-1 ml-[10px]"><AlertCircle className="w-4 h-4" />{errorMessage}</p>)}
+            
             {displayAddAppoinment &&
             <div className="mt-[20px] border-t border-[#dbe4ee] p-[20px] ">
                 <form onSubmit={(e)=>{
@@ -211,6 +213,7 @@ function AddAppoinmentsComponent({setdisplayAddAppoinment,displayAddAppoinment,g
                         </div>
 
                     </div>
+                    {errorMessage && (<p className="text-xl text-red-500 mt-1 flex items-center gap-1 ml-[10px]"><AlertCircle className="w-4 h-4" />{errorMessage}</p>)}
                     <div className="flex flex-col sm:flex-row gap-3 mt-8">
                     <button type="submit" className=" w-full lg:w-fit pl-[20px] pr-[20px] min-h-[50px] rounded-xl bg-[#1e3a5f] hover:bg-[#245188] text-white transition-all flex items-center justify-center gap-2 font-medium cursor-pointer">
                            <Save/>
@@ -264,7 +267,6 @@ function ListAppoinmentsDataComponent({ x,getAppoinments,setdisplayAddAppoinment
     useEffect(() => {
         setAppointmentData({appointmentid: x.appointmentid,status: x.status,reason: x.reason || "",hospitalname: parms.hospitalname ?? ""});
     }, [x.status, x.reason]);
-
     async function updateAppointment() {
         try {
             const update = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/patient/updateappointment`,appointmentData,{ withCredentials: true });
@@ -279,7 +281,7 @@ function ListAppoinmentsDataComponent({ x,getAppoinments,setdisplayAddAppoinment
     }
     return (
                 <div className="bg-white m-[20px] mt-0 mb-0 p-[20px]  border-[#e8edf2] border   hover:bg-blue-100  flex justify-between flex-col lg:flex-row text-left lg:text-center gap-4 cursor-pointer">
-                    
+                        <div className="flex w-full">
                         <div className="flex w-full ">
                             <div className="w-9 h-9 rounded-full bg-blue-300 text-blue-900 flex items-center justify-center font-semibold cursor-pointer mt-auto mb-auto">{x.name[0]}</div>
                             <div className="ml-[20px] mt-auto mb-auto ">{x.name}</div>
@@ -291,58 +293,63 @@ function ListAppoinmentsDataComponent({ x,getAppoinments,setdisplayAddAppoinment
                             <div className="">{new Date(x.appointmentdate).toLocaleString("en-IN", {timeZone: "Asia/Kolkata",day: "2-digit",month: "short",year: "numeric"})}</div>
                             <div className="text-[#47484a]">{x.appointmenttime}</div>
                         </div>
-                    
-                        <div className="w-full mt-auto mb-auto">
-                            {isDisabled ? (<div className="flex"><div className="bg-green-100 text-black p-[5px] pl-[10px] pr-[10px] rounded-[10px] ml-auto mr-auto uppercase">{x.status}</div></div>) 
-                            : (
-                                <div className="mt-4 flex gap-4">
-                                    <div>
-                                        <select value={appointmentData.status} onChange={(e) =>setAppointmentData({...appointmentData,status: e.target.value})} className="border rounded p-2 outline-none">
-                                            <option value="booked">Booked</option>
-                                            <option value="completed">Completed</option>
-                                            <option value="cancelled">Cancelled</option>
-                                        </select>
+                        </div>
+                        <div className="flex w-full mt-auto mb-auto">
+                            <div className="w-full mt-auto mb-auto">
+                                {isDisabled ? 
+                                (<div className="flex">
+                                    <div className={`p-[5px] font-semibold text-white pl-[10px] pr-[10px] rounded-[10px] ml-auto mr-auto uppercase 
+                                        ${x.status=="cancelled" && "bg-red-500" || x.status=="completed" && "bg-green-500" || x.status=="booked" && "bg-cyan-500"}`}>
+                                        {x.status}
                                     </div>
-
-                                </div>
-                            )}
-                        </div>
-                        <div className="w-full flex">
-
-                                {(userRole.roleType === "doctor" || userRole.roleType === "nurse") && (
-
-                                        isDisabled ? (
-                                            <div className="ml-auto mr-auto">
-                                                <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-green-200 ml-auto mr-auto cursor-pointer" onClick={() => setIsDisabled(false)}>
-                                                    Edit
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <div className="flex gap-2 ml-auto">
-                                                <button className=" w-full h-fit lg:w-fit pl-[20px] pr-[20px] min-h-[40px] rounded-xl bg-[#1e3a5f] hover:bg-[#245188] text-white transition-all flex items-center justify-center gap-2 font-medium cursor-pointer" onClick={updateAppointment}>
-                                                    <Save/>
-                                                </button>
-
-                                                <button
-                                                    className="w-full h-fit lg:w-fit pl-[20px] pr-[20px] min-h-[40px] rounded-xl bg-white hover:bg-red-300 text-black transition-all flex items-center justify-center gap-2 font-medium cursor-pointer"
-                                                    onClick={() => {
-                                                        setAppointmentData({ appointmentid: x.appointmentid, status: x.status,reason: x.reason || "",hospitalname: parms.hospitalname ?? ""});
-                                                        setIsDisabled(true);
-                                                    }}>
-                                                    <XIcon/>
-                                                </button>
-                                            </div>
-                                        )
+                                </div>) 
+                                : (
+                                    <div className="flex">
+                                            <select value={appointmentData.status} onChange={(e) =>setAppointmentData({...appointmentData,status: e.target.value})} className="bg-yellow-100 text-black p-[5px] rounded-[10px] ml-auto mr-auto uppercase outline-0 cursor-pointer">
+                                                <option value="booked">Booked</option>
+                                                <option value="completed">Completed</option>
+                                                <option value="cancelled">Cancelled</option>
+                                            </select>
+                                    </div>
                                 )}
-                        </div>
-                        <div className="flex w-full">
-                            <div className="ml-auto mr-auto">
-                                <Link to={`patients/${x.recordid}`} >
-                                    <button className="h-10 px-4 rounded-[10px] border text-white border-[#dbe4ee] bg-blue-500 hover:bg-blue-600 ml-auto mr-auto cursor-pointer">
-                                        <FolderOpenDotIcon/>
-                                        {x.recordname}
-                                    </button>
-                                </Link>
+                            </div>
+                            <div className="w-full flex">
+
+                                    {(userRole.roleType === "doctor" || userRole.roleType === "nurse") && (
+
+                                            isDisabled ? (
+                                                <div className="ml-auto mr-auto">
+                                                    <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-green-200 ml-auto mr-auto cursor-pointer" onClick={() => setIsDisabled(false)}>
+                                                        Edit
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="flex gap-2 ml-auto flex-col lg:flex-row">
+                                                    <button className=" w-full h-fit lg:w-fit pl-[20px] pr-[20px] min-h-[40px] rounded-xl bg-[#1e3a5f] hover:bg-[#245188] text-white transition-all flex items-center justify-center gap-2 font-medium cursor-pointer" onClick={updateAppointment}>
+                                                        <Save/>
+                                                    </button>
+
+                                                    <button
+                                                        className="w-full h-fit lg:w-fit pl-[20px] pr-[20px] min-h-[40px] rounded-xl bg-red-500 hover:bg-red-600 text-white transition-all flex items-center justify-center gap-2 font-medium cursor-pointer"
+                                                        onClick={() => {
+                                                            setAppointmentData({ appointmentid: x.appointmentid, status: x.status,reason: x.reason || "",hospitalname: parms.hospitalname ?? ""});
+                                                            setIsDisabled(true);
+                                                        }}>
+                                                        <XIcon/>
+                                                    </button>
+                                                </div>
+                                            )
+                                    )}
+                            </div>
+                            <div className="flex w-full">
+                                <div className="ml-auto mr-auto">
+                                    <Link to={`patients/${x.recordid}`} >
+                                        <button className="h-10 px-4 rounded-[10px] border text-white border-[#dbe4ee] bg-blue-500 hover:bg-blue-600 ml-auto mr-auto cursor-pointer">
+                                            <FolderOpenDotIcon/>
+                                            {x.recordname}
+                                        </button>
+                                    </Link>
+                                </div>
                             </div>
                         </div>
 
