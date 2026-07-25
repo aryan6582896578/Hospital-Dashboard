@@ -22,9 +22,11 @@ export function FinancePage(){
         getConsultations()
     }, [])
     return(
-        <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row overflow-hidden">
-            <HospitalSidebarComponent />
-            <FinanceDataComponent consultationData={consultationData} getConsultations={getConsultations} paymentData={paymentData}/>
+        <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row overflow-y-auto">
+            <div className="flex w-full flex-col lg:flex-row">
+                <HospitalSidebarComponent />
+                <FinanceDataComponent consultationData={consultationData} getConsultations={getConsultations} paymentData={paymentData}/>
+            </div>
         </div>       
     )
 }
@@ -32,7 +34,7 @@ export function FinancePage(){
 function FinanceDataComponent({consultationData,getConsultations,paymentData}:any){
     const userRole = useContext<any>(UserRoleContext);
     return(
-        <div className="flex w-full flex-col overflow-y-auto h-dvh pb-[20px] ">
+        <div className="flex w-full flex-col lg:overflow-y-auto lg:h-dvh pb-[20px] overflow-x-hidden ">
                 <div className="min-h-20 border-b bg-white border-[#e8edf2] px-2 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center  justify-end">
                     {(userRole.roleType==="admin" || userRole.roleType==="doctor")
                     && 
@@ -118,19 +120,12 @@ function PatientConsultationDataComponent({x,getConsultations}:any){
                                 {x.paymentnote && <div className="">Payment Note: {x.paymentnote}</div>}
                                 <div className="">Payment Updated By: {x.paymentupdatedby}</div>
                             </div>
-
-                            {x.paymentstatus==="paid"?
+                            <div className="">
                                 <div className="flex gap-3">
-                                    <div className="">Amount: <span className="bg-green-400 p-[5px] rounded-[5px] text-white font-medium">{x.paymentamount}</span> </div>
-                                    <div className="">Status: <span className=" bg-green-400 p-[5px] rounded-[5px] text-white font-medium">{x.paymentstatus} </span></div>
+                                    <div className="">Amount: <span className="bg-cyan-500 p-[5px] rounded-[5px] text-white font-semibold">{x.paymentamount}</span> </div>
+                                    <div className="">Status: <span className={` bg-green-400 text-white p-[5px] rounded-[5px] font-semibold uppercase ${x.paymentstatus=="notpaid" && "bg-red-500"}`}>{x.paymentstatus == "notpaid" && "Not Paid" || x.paymentstatus=="paid" && "Paid"} </span></div>
                                 </div>
-                                
-                                :
-                                <div className="flex gap-3">
-                                    <div className="">Amount: <span className="bg-red-400 p-[5px] rounded-[5px] text-white font-medium">{x.paymentamount}</span> </div>
-                                    <div className="">Status: <span className=" bg-yellow-200 text-black p-[5px] rounded-[5px] ">{x.paymentstatus} </span></div>
-                                </div>
-                            }    
+                            </div>    
 
 
                         </div>

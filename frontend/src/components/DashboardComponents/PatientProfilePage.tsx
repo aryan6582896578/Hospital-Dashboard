@@ -35,25 +35,26 @@ export default function PatientProfilePage(){
     
     return(
 
-        <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row overflow-hidden">
-
-            <HospitalSidebarComponent />
-            <div className="flex w-full flex-col overflow-y-auto h-dvh pb-[20px] ">
-                <div className="min-h-20 border-b bg-white border-[#e8edf2] px-2 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center justify-between">
-                    <div className="w-full lg:max-w-xl"></div>
-                    { (userRole.roleType==="doctor") && 
-                    <button onClick={() => {
-                        setdisplayAddConsultation(true);
-                    }}
-                    className="flex-1 lg:flex-none min-h-11 px-5 rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white transition-all flex items-center justify-center gap-2 font-semibold cursor-pointer">
-                        <Plus className="w-5 h-5 text-white " />
-                        Add Consultation
-                    </button>
-                    }
+        <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row ">
+            <div className="flex w-full flex-col lg:flex-row ">
+                <HospitalSidebarComponent />
+                <div className="flex flex-col w-full overflow-y-scroll">
+                    <div className="min-h-20 border-b bg-white border-[#e8edf2] px-2 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center justify-between">
+                        <div className="w-full lg:max-w-xl"></div>
+                        { (userRole.roleType==="doctor") && 
+                        <button onClick={() => {
+                            setdisplayAddConsultation(true);
+                        }}
+                        className="flex-1 lg:flex-none min-h-11 px-5 rounded-[10px] bg-[#1e3a5f] hover:bg-[#24466f] text-white transition-all flex items-center justify-center gap-2 font-semibold cursor-pointer">
+                            <Plus className="w-5 h-5 text-white " />
+                            Add Consultation
+                        </button>
+                        }
+                    </div>
+                    {displayAddConsultation && <AddConsultationComponent  parms={parms} patientProfileData={patientProfileData} setdisplayAddConsultation={setdisplayAddConsultation} displayAddConsultation={displayAddConsultation} getPatientConsultation={getPatientConsultation}/>}
+                    <PatientProfileComponent parms={parms} patientProfileData={patientProfileData} getPatientProfile={getPatientProfile} setdisplayAddConsultation={setdisplayAddConsultation}  />
+                    <PatientConsultationComponent consultationData={consultationData} getPatientConsultation={getPatientConsultation} />
                 </div>
-                {displayAddConsultation && <AddConsultationComponent  parms={parms} patientProfileData={patientProfileData} setdisplayAddConsultation={setdisplayAddConsultation} displayAddConsultation={displayAddConsultation} getPatientConsultation={getPatientConsultation}/>}
-                <PatientProfileComponent parms={parms} patientProfileData={patientProfileData} getPatientProfile={getPatientProfile} setdisplayAddConsultation={setdisplayAddConsultation}  />
-                <PatientConsultationComponent consultationData={consultationData} getPatientConsultation={getPatientConsultation} />
             </div>
         </div> 
     )
@@ -104,9 +105,7 @@ function PatientProfileComponent({parms,patientProfileData,getPatientProfile}:an
     }
 
     return(
-        <div className=" bg-[#f6f8fb] w-full flex flex-col min-h-fit overflow-hidden">
-
-            <div className="flex-1 min-h-0 flex flex-col bg-white rounded-3xl border border-[#e8edf2] shadow-xs p-5 sm:p-8 m-[10px] overflow-y-auto">
+                <div className="flex-1 flex flex-col bg-white rounded-3xl border border-[#e8edf2] shadow-xs p-5 sm:p-8 m-[10px] ">
 
                 <div className="mb-[10px]">
                 <div>
@@ -271,7 +270,6 @@ function PatientProfileComponent({parms,patientProfileData,getPatientProfile}:an
                     }
                 </form>
             </div>
-        </div>
     )
 }
 
@@ -342,8 +340,8 @@ function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultat
     
 
   return (
-    <div className="bg-[#f6f8fb] w-full flex flex-col min-h-fit h-fit overflow-hidden ">
-        <div className={`flex-1 min-h-0 flex flex-col ${errorMessage.status?"bg-red-300":"bg-blue-50"} rounded-3xl border border-[#e8edf2] shadow-xs p-5 sm:p-8 m-[10px] overflow-y-auto h-fit`}>
+    <div className="bg-[#f6f8fb] w-full flex flex-col ">
+        <div className={` flex flex-col bg-white rounded-3xl border border-[#e8edf2] shadow-xs p-5 sm:p-8 m-[10px]`}>
             <div className="text-center">
                 <div className="text-[30px]">Consultation</div>
                 <div className="select-none flex flex-col mr-[10px] min-w-[300px]">
@@ -353,7 +351,7 @@ function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultat
             <div className="">
                 {errorMessage.status && (<p className="text-[30px] p-[10px] rounded-[10px] font-semibold bg-white text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-5 h-5 " />{errorMessage.status}</p>)}
                 <div className="text-[30px] mt-[20px]">Patient History</div>
-                <div className="select-none flex mr-[10px] min-w-[300px] gap-3">
+                <div className="select-none flex mr-[10px] min-w-[300px] gap-3 flex-col lg:flex-row">
                     <div className="text-[#64748b] text-m mb-2 ml-[1px] w-full">
                         <div className="mb-[5px]">Past Medical History</div>
                         <textarea maxLength={200} rows={4} className={`resize-none border break-all w-full  rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative text-[#64748b] outline-0 border-[#dbe4ee] p-[10px]`} onChange={(e:any)=>{
@@ -506,6 +504,9 @@ function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultat
                     </div>
                 </div>
             </div>
+            <div className="">
+                {errorMessage.meds && (<p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errorMessage.meds}</p>)}
+            </div>
             <div className="flex justify-center gap-4">
                 <button onClick={()=>{
                     if(consultationData.medications[0].medicinename){
@@ -530,11 +531,7 @@ function AddConsultationComponent({setdisplayAddConsultation,displayAddConsultat
 }
 
 function PatientConsultationComponent({consultationData = [], getPatientConsultation}: {consultationData?: any[], getPatientConsultation?: () => void }){
-    if (!consultationData) return;
-    useEffect(() => {
-        console.log(consultationData)
-    }, [])
-    
+    if (!consultationData) return;    
     return(
         <div className="">
             {consultationData.map((x:any,y:any)=>{
@@ -553,7 +550,6 @@ function PatientConsultationDataComponent({x,y,getPatientConsultation}:any){
     
     async function UpdatePaymentPost(){
         const updatePayment = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/patient/updatepaymentconsultation`,paymentData,{ withCredentials: true });
-        console.log(updatePayment.data.status)
         if(updatePayment.data.status==="updatedPayment"){
             getPatientConsultation()
             setisDisabled(true)
@@ -584,14 +580,14 @@ function PatientConsultationDataComponent({x,y,getPatientConsultation}:any){
                             <ConsultationPdfButton consultation={x}/>
                         </div>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between flex-col lg:flex-row" >
                         <div className="text-[#64748b] text-xs flex gap-2 mt-auto mb-auto">
                             <div className="">Amount: {x.paymentamount}</div>
-                            <div className="uppercase">Status: {x.paymentstatus}</div>
+                            <div>Status: <span className={`uppercase text-green-500 ${x.paymentstatus=="notpaid" && "text-red-500"}`}> {x.paymentstatus} </span></div>
                             {x.paymentnote && <div className="">Payment Note: {x.paymentnote}</div>}
                             <div className="">Payment Updated By: {x.paymentupdatedby}</div>
                         </div>
-                        {isDisabled? <div className=""> { (userRole.roleType==="doctor" || userRole.roleType==="nurse") &&  <div className="">
+                        {isDisabled? <div className=""> { (userRole.roleType==="doctor" || userRole.roleType==="nurse") &&  <div className=" mt-[20px] lg:mt-0">
                             <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-green-200 transition-all flex items-center gap-2 text-[#1e293b] cursor-pointer font-semibold" onClick={()=>{
                                 getPatientConsultation()
                                 setisDisabled(false)
@@ -601,13 +597,13 @@ function PatientConsultationDataComponent({x,y,getPatientConsultation}:any){
                         </div>
                         } </div>
                         :
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 mt-[20px] lg:mt-0">
                             <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] hover:bg-[#394d6e] transition-all flex items-center gap-2 bg-[#1e293b] text-white whitespace-nowrap cursor-pointer font-semibold" onClick={()=>{
                                 UpdatePaymentPost()
                             }}>
                                 <SaveIcon className="w-4 h-4" /> Save
                             </button>
-                            <button className="h-10 px-4 rounded-[10px] border border-[#dbe4ee] bg-white hover:bg-red-200 transition-all flex items-center gap-2 text-[#1e293b] cursor-pointer font-semibold" onClick={()=>{
+                            <button className="h-10 px-4 rounded-[10px] text-white  bg-red-500 hover:bg-red-600 transition-all flex items-center gap-2 cursor-pointer font-semibold" onClick={()=>{
                                 setisDisabled(true)
                             }}>
                                 Cancel
@@ -618,7 +614,7 @@ function PatientConsultationDataComponent({x,y,getPatientConsultation}:any){
                     {!isDisabled && 
                         <div className="bg-white p-[20px] mt-[20px] rounded-[10px]">
                             <div className="text-[30px] mb-[10px]">Payment</div>
-                            <div className="flex">
+                            <div className="flex flex-col lg:flex-row">
                                 <div className="text-[#64748b] mr-[20px]">
                                     Amount
                                     <input type="number" step="50" maxLength={10} className={`resize-none border break-all w-full  rounded-[10px] bg-[#f8fafc] hover:text-[#3e4856] relative text-[#64748b] outline-0 border-[#dbe4ee] p-[10px]`} onChange={(e:any)=>{

@@ -45,7 +45,7 @@ export default function ConsultationPdfButton({
 
     return (
         <>
-            <button onClick={downloadPdf} className="mt-[10px]  text-blue-400  hover:bg-blue-500 hover:text-white px-4 py-2 rounded cursor-pointer">
+            <button onClick={downloadPdf} className="mt-[10px] bg-blue-500 text-white  hover:bg-blue-600 px-4 py-2 rounded cursor-pointer">
                 <PrinterIcon/>
             </button>
 
