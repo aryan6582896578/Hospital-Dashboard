@@ -30,8 +30,8 @@ export function HospitalPage(){
         return(
         <div className="bg-[#f6f8fb] h-dvh flex flex-col lg:flex-row overflow-y-auto">
             <div className="flex w-full flex-col lg:flex-row">
-            <HospitalSidebarComponent />
-            <AppointmentsPage setsearchDate={setsearchDate} searchDate={searchDate} appoinmentsData={appoinmentsData} getAppoinments={getAppoinments} patientRecords={patientRecords}/>
+                <HospitalSidebarComponent />
+                <AppointmentsPage setsearchDate={setsearchDate} searchDate={searchDate} appoinmentsData={appoinmentsData} getAppoinments={getAppoinments} patientRecords={patientRecords}/>
             </div>
         </div>
             
