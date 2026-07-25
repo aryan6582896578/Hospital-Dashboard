@@ -32,7 +32,7 @@ export function MedicineList(){
             <div className="flex w-full flex-col lg:flex-row">
 
                 <HospitalSidebarComponent />
-                <div className="flex w-full flex-col overflow-y-auto h-dvh pb-[20px] ">
+                <div className="flex w-full flex-col pb-[20px] ">
                     <div className="min-h-20 border-b bg-white border-[#e8edf2] px-2 sm:px-4 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center  justify-end text-[25px] font-semibold">
                         <div className="bg-blue-900 text-white pl-[20px] pr-[20px] rounded-[5px] w-fit">
                             Medicine List
